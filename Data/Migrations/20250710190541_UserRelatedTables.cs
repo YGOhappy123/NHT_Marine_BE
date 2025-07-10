@@ -108,7 +108,6 @@ namespace NHT_Marine_BE.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RoleId = table.Column<int>(type: "int", nullable: true),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedByStaffStaffId = table.Column<int>(type: "int", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -129,8 +128,8 @@ namespace NHT_Marine_BE.Data.Migrations
                         principalTable: "StaffRoles",
                         principalColumn: "RoleId");
                     table.ForeignKey(
-                        name: "FK_Staffs_Staffs_CreatedByStaffStaffId",
-                        column: x => x.CreatedByStaffStaffId,
+                        name: "FK_Staffs_Staffs_CreatedBy",
+                        column: x => x.CreatedBy,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
                 });
@@ -403,9 +402,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 filter: "[AccountId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Staffs_CreatedByStaffStaffId",
+                name: "IX_Staffs_CreatedBy",
                 table: "Staffs",
-                column: "CreatedByStaffStaffId");
+                column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Staffs_RoleId",

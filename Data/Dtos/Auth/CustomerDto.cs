@@ -1,12 +1,12 @@
-namespace NHT_Marine_BE.Models.User
+namespace NHT_Marine_BE.Data.Dtos.Auth
 {
-    public class AppUser
+    public class CustomerDto
     {
+        public int CustomerId { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string? Email { get; set; }
         public string? Avatar { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public int? AccountId { get; set; }
-        public Account? Account { get; set; }
+        public bool? IsActive { get; set; } = true;
     }
 }

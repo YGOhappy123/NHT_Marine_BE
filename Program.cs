@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using NHT_Marine_BE.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);

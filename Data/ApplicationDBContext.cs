@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using NHT_Marine_BE.Models.Product;
 using NHT_Marine_BE.Models.User;
@@ -39,6 +35,9 @@ namespace NHT_Marine_BE.Data
         {
             // Handle enum conversions
             builder.Entity<CustomerCart>().Property(cc => cc.Status).HasConversion<string>();
+
+            // Handle table self-references
+            builder.Entity<Staff>().HasOne(s => s.CreatedByStaff).WithMany(s => s.CreatedStaffs).HasForeignKey(s => s.CreatedBy);
 
             // Handle many-to-many relations
             builder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });

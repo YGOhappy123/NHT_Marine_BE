@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NHT_Marine_BE.Models.User
 {
@@ -14,5 +10,6 @@ namespace NHT_Marine_BE.Models.User
         public int? CreatedBy { get; set; }
         public StaffRole? Role { get; set; }
         public Staff? CreatedByStaff { get; set; }
+        public List<Staff> CreatedStaffs { get; set; } = [];
     }
 }

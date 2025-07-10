@@ -381,9 +381,6 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CreatedByStaffStaffId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -400,7 +397,7 @@ namespace NHT_Marine_BE.Data.Migrations
                         .IsUnique()
                         .HasFilter("[AccountId] IS NOT NULL");
 
-                    b.HasIndex("CreatedByStaffStaffId");
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("RoleId");
 
@@ -562,8 +559,8 @@ namespace NHT_Marine_BE.Data.Migrations
                         .HasForeignKey("NHT_Marine_BE.Models.User.Staff", "AccountId");
 
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "CreatedByStaff")
-                        .WithMany()
-                        .HasForeignKey("CreatedByStaffStaffId");
+                        .WithMany("CreatedStaffs")
+                        .HasForeignKey("CreatedBy");
 
                     b.HasOne("NHT_Marine_BE.Models.User.StaffRole", "Role")
                         .WithMany()
@@ -610,6 +607,11 @@ namespace NHT_Marine_BE.Data.Migrations
             modelBuilder.Entity("NHT_Marine_BE.Models.User.CustomerCart", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("NHT_Marine_BE.Models.User.Staff", b =>
+                {
+                    b.Navigation("CreatedStaffs");
                 });
 
             modelBuilder.Entity("NHT_Marine_BE.Models.User.StaffRole", b =>

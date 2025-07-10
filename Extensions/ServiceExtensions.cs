@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NHT_Marine_BE.Data;
-// using NHT_Marine_BE.Interfaces.Repositories;
-// using NHT_Marine_BE.Interfaces.Services;
-// using NHT_Marine_BE.Repositories;
+using NHT_Marine_BE.Interfaces.Repositories;
+using NHT_Marine_BE.Interfaces.Services;
+using NHT_Marine_BE.Repositories;
 using NHT_Marine_BE.Services;
 
 namespace NHT_Marine_BE.Extensions
@@ -123,8 +123,13 @@ namespace NHT_Marine_BE.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             // Repository interfaces
+            services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<IStaffRepository, StaffRepository>();
 
             // Services interfaces
+            services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }

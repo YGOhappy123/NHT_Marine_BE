@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-
 namespace NHT_Marine_BE.Services
 {
     public class AppBackgroundService : BackgroundService
