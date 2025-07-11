@@ -7,7 +7,7 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task<Account?> GetAccountByUsername(string username);
         Task<Account?> GetAccountById(int accountId);
         Task<Account?> GetCustomerAccountByEmail(string email);
-        Task<Account?> GetAccountByUserIdAndRole(int userId, string role);
+        Task<Account?> GetAccountByUserId(int userId, bool isCustomer);
         Task AddAccount(Account account);
         Task UpdateAccount(Account account);
     }

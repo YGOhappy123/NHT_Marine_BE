@@ -39,7 +39,6 @@ namespace NHT_Marine_BE.Services
                 throw new ArgumentNullException(nameof(user), "User cannot be null");
             }
 
-            // var claims = new[] { new Claim(ClaimTypes.Name, user.CustomerId.ToString()) };
             var claims =
                 user is Customer
                     ? new[] { new Claim(ClaimTypes.Name, ((Customer)user).CustomerId.ToString()) }
@@ -47,18 +46,6 @@ namespace NHT_Marine_BE.Services
 
             return GenerateToken(claims, "Jwt:AccessTokenSecret", 30);
         }
-
-        // public string GenerateStaffAccessToken(Staff staff, string role)
-        // {
-        //     if (staff == null)
-        //     {
-        //         throw new ArgumentNullException(nameof(staff), "Staff cannot be null");
-        //     }
-
-        //     var claims = new[] { new Claim(ClaimTypes.Name, staff.StaffId.ToString()), new Claim(ClaimTypes.Role, role) };
-
-        //     return GenerateToken(claims, "Jwt:AccessTokenSecret", 30);
-        // }
 
         public string GenerateRefreshToken(Account account)
         {

@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -71,6 +72,21 @@ namespace NHT_Marine_BE.Extensions
                         ClockSkew = TimeSpan.Zero,
                     };
                 });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    "StaffOnly",
+                    policy =>
+                        policy.RequireAssertion(context =>
+                            context.User.HasClaim(c => c.Type == ClaimTypes.Role && !string.IsNullOrEmpty(c.Value))
+                        )
+                );
+
+                options.AddPolicy(
+                    "CustomerOnly",
+                    policy => policy.RequireAssertion(context => !context.User.HasClaim(c => c.Type == ClaimTypes.Role))
+                );
+            });
 
             return services;
         }
@@ -129,6 +145,7 @@ namespace NHT_Marine_BE.Extensions
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IMailerService, MailerService>();
             services.AddScoped<IAuthService, AuthService>();
 
             return services;

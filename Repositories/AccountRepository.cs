@@ -26,27 +26,25 @@ namespace NHT_Marine_BE.Repositories
 
         public async Task<Account?> GetCustomerAccountByEmail(string email)
         {
-            // return await _dbContext
-            //     .Accounts.Where(acc => acc.IsActive && acc.Guest != null && acc.Guest.Email == email)
-            //     .FirstOrDefaultAsync();
-            return null;
+            return await _dbContext
+                .Accounts.Where(acc => acc.IsActive && acc.Customer != null && acc.Customer.Email == email)
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<Account?> GetAccountByUserIdAndRole(int userId, string role)
+        public async Task<Account?> GetAccountByUserId(int userId, bool isCustomer)
         {
-            // if (role == UserRole.Guest.ToString())
-            // {
-            //     return await _dbContext
-            //         .Accounts.Where(acc => acc.IsActive && acc.Guest != null && acc.Guest.Id == userId)
-            //         .FirstOrDefaultAsync();
-            // }
-            // else
-            // {
-            //     return await _dbContext
-            //         .Accounts.Where(acc => acc.IsActive && acc.Admin != null && acc.Admin.Id == userId)
-            //         .FirstOrDefaultAsync();
-            // }
-            return null;
+            if (isCustomer)
+            {
+                return await _dbContext
+                    .Accounts.Where(acc => acc.IsActive && acc.Customer != null && acc.Customer.CustomerId == userId)
+                    .FirstOrDefaultAsync();
+            }
+            else
+            {
+                return await _dbContext
+                    .Accounts.Where(acc => acc.IsActive && acc.Staff != null && acc.Staff.StaffId == userId)
+                    .FirstOrDefaultAsync();
+            }
         }
 
         public async Task AddAccount(Account account)

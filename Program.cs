@@ -2,6 +2,8 @@ using NHT_Marine_BE.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
+
 builder.Services.AddJsonOptionsForControllers();
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddCorsPolicies();

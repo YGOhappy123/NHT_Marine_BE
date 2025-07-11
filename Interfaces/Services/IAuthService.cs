@@ -8,12 +8,12 @@ namespace NHT_Marine_BE.Interfaces.Services
     {
         Task<ServiceResponse<Customer>> CustomerSignIn(SignInDto signInDto);
         Task<ServiceResponse<Staff>> StaffSignIn(SignInDto signInDto);
-        // Task<ServiceResponse<Guest>> SignUpGuestAccount(SignUpDto signUpDto);
-        // Task<ServiceResponse> RefreshToken(RefreshTokenDto refreshTokenDto);
-        // Task<ServiceResponse> ChangePassword(ChangePasswordDto changePasswordDto, int authUserId, string authUserRole);
-        // Task<ServiceResponse> ForgotPassword(ForgotPasswordDto forgotPasswordDto);
-        // Task<ServiceResponse> ResetPassword(ResetPasswordDto resetPasswordDto);
-        // Task<ServiceResponse<Guest>> GoogleAuthentication(GoogleAuthDto googleAuthDto);
-        // Task<ServiceResponse> DeactivateAccount(DeactivateAccountDto deactivateAccountDto, int authUserId, string authUserRole);
+        Task<ServiceResponse<Customer>> CustomerSignUp(SignUpDto signUpDto);
+        Task<ServiceResponse> RefreshToken(RefreshTokenDto refreshTokenDto);
+        Task<ServiceResponse> ChangePassword(ChangePasswordDto changePasswordDto, int authUserId, int? authRoleId);
+        Task<ServiceResponse> ForgotPassword(ForgotPasswordDto forgotPasswordDto);
+        Task<ServiceResponse> ResetPassword(ResetPasswordDto resetPasswordDto);
+        Task<ServiceResponse<Customer>> GoogleAuthentication(GoogleAuthDto googleAuthDto);
+        Task<ServiceResponse> CustomerDeactivateAccount(int customerId);
     }
 }

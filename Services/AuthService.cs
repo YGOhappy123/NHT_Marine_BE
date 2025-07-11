@@ -1,3 +1,6 @@
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text.Json;
 using NHT_Marine_BE.Data.Dtos.Auth;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Interfaces.Repositories;
@@ -14,16 +17,15 @@ namespace NHT_Marine_BE.Services
         private readonly ICustomerRepository _customerRepo;
         private readonly IStaffRepository _staffRepo;
         private readonly IJwtService _jwtService;
-
-        // private readonly IMailerService _mailerService;
+        private readonly IMailerService _mailerService;
 
         public AuthService(
             IConfiguration configuration,
             IAccountRepository accountRepo,
             ICustomerRepository customerRepo,
             IStaffRepository staffRepo,
-            IJwtService jwtService
-        // IMailerService mailerService
+            IJwtService jwtService,
+            IMailerService mailerService
         )
         {
             _configuration = configuration;
@@ -31,7 +33,7 @@ namespace NHT_Marine_BE.Services
             _customerRepo = customerRepo;
             _staffRepo = staffRepo;
             _jwtService = jwtService;
-            // _mailerService = mailerService;
+            _mailerService = mailerService;
         }
 
         public async Task<ServiceResponse<Customer>> CustomerSignIn(SignInDto signInDto)
@@ -104,293 +106,281 @@ namespace NHT_Marine_BE.Services
             };
         }
 
-        // public async Task<ServiceResponse<Guest>> SignUpGuestAccount(SignUpDto signUpDto)
-        // {
-        //     var existedAccount = await _accountRepo.GetAccountByUsername(signUpDto.Username);
-        //     if (existedAccount != null)
-        //     {
-        //         return new ServiceResponse<Guest>
-        //         {
-        //             Status = ResStatusCode.CONFLICT,
-        //             Success = false,
-        //             Message = ErrorMessage.USERNAME_EXISTED,
-        //         };
-        //     }
+        public async Task<ServiceResponse<Customer>> CustomerSignUp(SignUpDto signUpDto)
+        {
+            Console.WriteLine(BCrypt.Net.BCrypt.HashPassword("customer0006"));
+            var existedAccount = await _accountRepo.GetAccountByUsername(signUpDto.Username);
+            if (existedAccount != null)
+            {
+                return new ServiceResponse<Customer>
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.USERNAME_EXISTED,
+                };
+            }
 
-        //     var newAccount = new Account { Username = signUpDto.Username, Password = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password) };
-        //     await _accountRepo.AddAccount(newAccount);
+            var newAccount = new Account { Username = signUpDto.Username, Password = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password) };
+            await _accountRepo.AddAccount(newAccount);
 
-        //     var newGuest = new Guest
-        //     {
-        //         FirstName = signUpDto.FirstName,
-        //         LastName = signUpDto.LastName,
-        //         AccountId = newAccount.Id,
-        //         Avatar = _configuration["Application:DefaultUserAvatar"],
-        //     };
-        //     await _guestRepo.AddGuest(newGuest);
+            var newCustomer = new Customer
+            {
+                FullName = signUpDto.FullName.CapitalizeAllWords(),
+                AccountId = newAccount.AccountId,
+                Avatar = _configuration["Application:DefaultUserAvatar"],
+            };
+            await _customerRepo.AddCustomer(newCustomer);
 
-        //     return new ServiceResponse<Guest>
-        //     {
-        //         Status = ResStatusCode.CREATED,
-        //         Success = true,
-        //         Message = SuccessMessage.SIGN_UP_SUCCESSFULLY,
-        //         Data = newGuest,
-        //         AccessToken = _jwtService.GenerateAccessToken(newGuest!, UserRole.Guest),
-        //         RefreshToken = _jwtService.GenerateRefreshToken(newAccount),
-        //     };
-        // }
+            return new ServiceResponse<Customer>
+            {
+                Status = ResStatusCode.CREATED,
+                Success = true,
+                Message = SuccessMessage.SIGN_UP_SUCCESSFULLY,
+                Data = newCustomer,
+                AccessToken = _jwtService.GenerateAccessToken(newCustomer!),
+                RefreshToken = _jwtService.GenerateRefreshToken(newAccount),
+            };
+        }
 
-        // public async Task<ServiceResponse> RefreshToken(RefreshTokenDto refreshTokenDto)
-        // {
-        //     if (_jwtService.VerifyRefreshToken(refreshTokenDto.RefreshToken, out var principal))
-        //     {
-        //         var accountId = principal!.FindFirst(ClaimTypes.Name)!.Value;
-        //         var account = await _accountRepo.GetAccountById(int.Parse(accountId));
+        public async Task<ServiceResponse> RefreshToken(RefreshTokenDto refreshTokenDto)
+        {
+            if (_jwtService.VerifyRefreshToken(refreshTokenDto.RefreshToken, out var principal))
+            {
+                var accountId = principal!.FindFirst(ClaimTypes.Name)!.Value;
 
-        //         if (account == null)
-        //         {
-        //             return new ServiceResponse
-        //             {
-        //                 Status = ResStatusCode.UNAUTHORIZED,
-        //                 Success = false,
-        //                 Message = ErrorMessage.INVALID_CREDENTIALS,
-        //             };
-        //         }
+                var customer = await _customerRepo.GetCustomerByAccountId(int.Parse(accountId));
+                if (customer != null)
+                {
+                    return new ServiceResponse
+                    {
+                        Status = ResStatusCode.OK,
+                        Success = true,
+                        Message = SuccessMessage.REFRESH_TOKEN_SUCCESSFULLY,
+                        AccessToken = _jwtService.GenerateAccessToken(customer),
+                    };
+                }
 
-        //         AppUser? userData =
-        //             (account.Role == UserRole.Guest)
-        //                 ? await _guestRepo.GetGuestByAccountId(account.Id)
-        //                 : await _adminRepo.GetAdminByAccountId(account.Id);
+                var staff = await _staffRepo.GetStaffByAccountId(int.Parse(accountId));
+                if (staff != null)
+                {
+                    return new ServiceResponse
+                    {
+                        Status = ResStatusCode.OK,
+                        Success = true,
+                        Message = SuccessMessage.REFRESH_TOKEN_SUCCESSFULLY,
+                        AccessToken = _jwtService.GenerateAccessToken(staff, staff.RoleId),
+                    };
+                }
 
-        //         return new ServiceResponse
-        //         {
-        //             Status = ResStatusCode.OK,
-        //             Success = true,
-        //             Message = SuccessMessage.REFRESH_TOKEN_SUCCESSFULLY,
-        //             AccessToken = _jwtService.GenerateAccessToken(userData!, account.Role),
-        //         };
-        //     }
-        //     else
-        //     {
-        //         return new ServiceResponse
-        //         {
-        //             Status = ResStatusCode.UNAUTHORIZED,
-        //             Success = false,
-        //             Message = ErrorMessage.INVALID_CREDENTIALS,
-        //         };
-        //     }
-        // }
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.UNAUTHORIZED,
+                    Success = false,
+                    Message = ErrorMessage.INVALID_CREDENTIALS,
+                };
+            }
+            else
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.UNAUTHORIZED,
+                    Success = false,
+                    Message = ErrorMessage.INVALID_CREDENTIALS,
+                };
+            }
+        }
 
-        // public async Task<ServiceResponse> ChangePassword(ChangePasswordDto changePasswordDto, int authUserId, string authUserRole)
-        // {
-        //     var targetAccount = await _accountRepo.GetAccountByUserIdAndRole(authUserId, authUserRole);
-        //     if (targetAccount == null || !BCrypt.Net.BCrypt.Verify(changePasswordDto.OldPassword, targetAccount.Password))
-        //     {
-        //         return new ServiceResponse
-        //         {
-        //             Status = ResStatusCode.UNAUTHORIZED,
-        //             Success = false,
-        //             Message = ErrorMessage.INCORRECT_PASSWORD,
-        //         };
-        //     }
+        public async Task<ServiceResponse> ChangePassword(ChangePasswordDto changePasswordDto, int authUserId, int? authRoleId)
+        {
+            var targetAccount = await _accountRepo.GetAccountByUserId(authUserId, authRoleId == null);
+            if (targetAccount == null || !BCrypt.Net.BCrypt.Verify(changePasswordDto.OldPassword, targetAccount.Password))
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.UNAUTHORIZED,
+                    Success = false,
+                    Message = ErrorMessage.INCORRECT_PASSWORD,
+                };
+            }
 
-        //     targetAccount.Password = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
-        //     await _accountRepo.UpdateAccount(targetAccount);
+            targetAccount.Password = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
+            await _accountRepo.UpdateAccount(targetAccount);
 
-        //     return new ServiceResponse
-        //     {
-        //         Status = ResStatusCode.OK,
-        //         Success = true,
-        //         Message = SuccessMessage.CHANGE_PASSWORD_SUCCESSFULLY,
-        //     };
-        // }
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.CHANGE_PASSWORD_SUCCESSFULLY,
+            };
+        }
 
-        // public async Task<ServiceResponse> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
-        // {
-        //     var existedGuest = await _guestRepo.GetGuestByEmail(forgotPasswordDto.Email);
-        //     if (existedGuest == null)
-        //     {
-        //         return new ServiceResponse
-        //         {
-        //             Status = ResStatusCode.NOT_FOUND,
-        //             Success = false,
-        //             Message = ErrorMessage.USER_NOT_FOUND,
-        //         };
-        //     }
+        public async Task<ServiceResponse> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        {
+            var existedCustomer = await _customerRepo.GetCustomerByEmail(forgotPasswordDto.Email);
+            if (existedCustomer == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.USER_NOT_FOUND,
+                };
+            }
 
-        //     await _mailerService.SendResetPasswordEmail(
-        //         forgotPasswordDto.Email,
-        //         $"{existedGuest.LastName} {existedGuest.FirstName}",
-        //         $"{_configuration["Application:ClientUrl"]}/auth?type=reset&token={_jwtService.GenerateResetPasswordToken(existedGuest)}"
-        //     );
+            await _mailerService.SendResetPasswordEmail(
+                forgotPasswordDto.Email,
+                existedCustomer.FullName,
+                $"{_configuration["Application:ClientUrl"]}/auth?type=reset&token={_jwtService.GenerateResetPasswordToken(existedCustomer)}"
+            );
 
-        //     return new ServiceResponse
-        //     {
-        //         Status = ResStatusCode.OK,
-        //         Success = true,
-        //         Message = SuccessMessage.RESET_PASSWORD_EMAIL_SENT,
-        //     };
-        // }
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.RESET_PASSWORD_EMAIL_SENT,
+            };
+        }
 
-        // public async Task<ServiceResponse> ResetPassword(ResetPasswordDto resetPasswordDto)
-        // {
-        //     if (_jwtService.VerifyResetPasswordToken(resetPasswordDto.ResetPasswordToken, out var principal))
-        //     {
-        //         var email = principal!.FindFirst(ClaimTypes.Email)!.Value;
-        //         var account = await _accountRepo.GetGuestAccountByEmail(email);
+        public async Task<ServiceResponse> ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
+            if (_jwtService.VerifyResetPasswordToken(resetPasswordDto.ResetPasswordToken, out var principal))
+            {
+                var email = principal!.FindFirst(ClaimTypes.Email)!.Value;
 
-        //         if (account == null)
-        //         {
-        //             return new ServiceResponse
-        //             {
-        //                 Status = ResStatusCode.UNAUTHORIZED,
-        //                 Success = false,
-        //                 Message = ErrorMessage.INVALID_CREDENTIALS,
-        //             };
-        //         }
+                var account = await _accountRepo.GetCustomerAccountByEmail(email);
+                if (account == null)
+                {
+                    return new ServiceResponse
+                    {
+                        Status = ResStatusCode.UNAUTHORIZED,
+                        Success = false,
+                        Message = ErrorMessage.INVALID_CREDENTIALS,
+                    };
+                }
 
-        //         account.Password = BCrypt.Net.BCrypt.HashPassword(resetPasswordDto.Password);
-        //         await _accountRepo.UpdateAccount(account);
+                account.Password = BCrypt.Net.BCrypt.HashPassword(resetPasswordDto.Password);
+                await _accountRepo.UpdateAccount(account);
 
-        //         return new ServiceResponse
-        //         {
-        //             Status = ResStatusCode.OK,
-        //             Success = true,
-        //             Message = SuccessMessage.RESET_PASSWORD_SUCCESSFULLY,
-        //         };
-        //     }
-        //     else
-        //     {
-        //         return new ServiceResponse
-        //         {
-        //             Status = ResStatusCode.UNAUTHORIZED,
-        //             Success = false,
-        //             Message = ErrorMessage.INVALID_CREDENTIALS,
-        //         };
-        //     }
-        // }
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.OK,
+                    Success = true,
+                    Message = SuccessMessage.RESET_PASSWORD_SUCCESSFULLY,
+                };
+            }
+            else
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.UNAUTHORIZED,
+                    Success = false,
+                    Message = ErrorMessage.INVALID_CREDENTIALS,
+                };
+            }
+        }
 
-        // public async Task<ServiceResponse<Guest>> GoogleAuthentication(GoogleAuthDto googleAuthDto)
-        // {
-        //     var googleUserInfo = await FetchGoogleUserInfoAsync(googleAuthDto.GoogleAccessToken);
-        //     if (googleUserInfo == null || !googleUserInfo.EmailVerified)
-        //     {
-        //         return new ServiceResponse<Guest>
-        //         {
-        //             Status = ResStatusCode.UNAUTHORIZED,
-        //             Success = false,
-        //             Message = ErrorMessage.GOOGLE_AUTH_FAILED,
-        //         };
-        //     }
+        public async Task<ServiceResponse<Customer>> GoogleAuthentication(GoogleAuthDto googleAuthDto)
+        {
+            var googleUserInfo = await FetchGoogleUserInfoAsync(googleAuthDto.GoogleAccessToken);
+            if (googleUserInfo == null || !googleUserInfo.EmailVerified)
+            {
+                return new ServiceResponse<Customer>
+                {
+                    Status = ResStatusCode.UNAUTHORIZED,
+                    Success = false,
+                    Message = ErrorMessage.GOOGLE_AUTH_FAILED,
+                };
+            }
 
-        //     var existedAccount = await _accountRepo.GetGuestAccountByEmail(googleUserInfo.Email);
-        //     if (existedAccount == null)
-        //     {
-        //         string randomUsername = RandomStringGenerator.GenerateRandomString(16);
-        //         string randomPassword = RandomStringGenerator.GenerateRandomString(16);
+            var existedAccount = await _accountRepo.GetCustomerAccountByEmail(googleUserInfo.Email);
+            if (existedAccount == null)
+            {
+                string randomUsername = RandomStringGenerator.GenerateRandomString(16);
+                string randomPassword = RandomStringGenerator.GenerateRandomString(16);
 
-        //         var newAccount = new Account { Username = randomUsername, Password = BCrypt.Net.BCrypt.HashPassword(randomPassword) };
-        //         await _accountRepo.AddAccount(newAccount);
+                var newAccount = new Account { Username = randomUsername, Password = BCrypt.Net.BCrypt.HashPassword(randomPassword) };
+                await _accountRepo.AddAccount(newAccount);
 
-        //         var newGuest = new Guest
-        //         {
-        //             FirstName = googleUserInfo.FirstName,
-        //             LastName = googleUserInfo.LastName,
-        //             AccountId = newAccount.Id,
-        //             Avatar = googleUserInfo.Picture ?? _configuration["Application:DefaultUserAvatar"],
-        //             Email = googleUserInfo.Email,
-        //         };
-        //         await _guestRepo.AddGuest(newGuest);
+                var newCustomer = new Customer
+                {
+                    FullName = $"{googleUserInfo.LastName} {googleUserInfo.FirstName}",
+                    AccountId = newAccount.AccountId,
+                    Avatar = googleUserInfo.Picture ?? _configuration["Application:DefaultUserAvatar"],
+                    Email = googleUserInfo.Email,
+                };
+                await _customerRepo.AddCustomer(newCustomer);
 
-        //         await _mailerService.SendGoogleRegistrationSuccessEmail(
-        //             googleUserInfo.Email,
-        //             $"{newGuest.LastName} {newGuest.FirstName}",
-        //             randomUsername,
-        //             randomPassword,
-        //             $"{_configuration["Application:ClientUrl"]}/profile/change-password"
-        //         );
+                await _mailerService.SendGoogleRegistrationSuccessEmail(
+                    googleUserInfo.Email,
+                    newCustomer.FullName,
+                    randomUsername,
+                    randomPassword,
+                    $"{_configuration["Application:ClientUrl"]}/profile/change-password"
+                );
 
-        //         return new ServiceResponse<Guest>
-        //         {
-        //             Status = ResStatusCode.CREATED,
-        //             Success = true,
-        //             Message = SuccessMessage.GOOGLE_AUTH_SUCCESSFULLY,
-        //             Data = newGuest,
-        //             AccessToken = _jwtService.GenerateAccessToken(newGuest!, UserRole.Guest),
-        //             RefreshToken = _jwtService.GenerateRefreshToken(newAccount),
-        //         };
-        //     }
-        //     else
-        //     {
-        //         var guestData = await _guestRepo.GetGuestByAccountId(existedAccount.Id);
+                return new ServiceResponse<Customer>
+                {
+                    Status = ResStatusCode.CREATED,
+                    Success = true,
+                    Message = SuccessMessage.GOOGLE_AUTH_SUCCESSFULLY,
+                    Data = newCustomer,
+                    AccessToken = _jwtService.GenerateAccessToken(newCustomer),
+                    RefreshToken = _jwtService.GenerateRefreshToken(newAccount),
+                };
+            }
+            else
+            {
+                var customerData = await _customerRepo.GetCustomerByAccountId(existedAccount.AccountId);
 
-        //         return new ServiceResponse<Guest>
-        //         {
-        //             Status = ResStatusCode.OK,
-        //             Success = true,
-        //             Message = SuccessMessage.GOOGLE_AUTH_SUCCESSFULLY,
-        //             Data = guestData,
-        //             AccessToken = _jwtService.GenerateAccessToken(guestData!, UserRole.Guest),
-        //             RefreshToken = _jwtService.GenerateRefreshToken(existedAccount),
-        //         };
-        //     }
-        // }
+                return new ServiceResponse<Customer>
+                {
+                    Status = ResStatusCode.OK,
+                    Success = true,
+                    Message = SuccessMessage.GOOGLE_AUTH_SUCCESSFULLY,
+                    Data = customerData,
+                    AccessToken = _jwtService.GenerateAccessToken(customerData!),
+                    RefreshToken = _jwtService.GenerateRefreshToken(existedAccount),
+                };
+            }
+        }
 
-        // private async Task<GoogleUserInfoDto?> FetchGoogleUserInfoAsync(string googleAccessToken)
-        // {
-        //     using var httpClient = new HttpClient();
-        //     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", googleAccessToken);
+        private async Task<GoogleUserInfoDto?> FetchGoogleUserInfoAsync(string googleAccessToken)
+        {
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", googleAccessToken);
 
-        //     var response = await httpClient.GetAsync(_configuration["GoogleApi:OAuthEndPoint"]);
-        //     if (!response.IsSuccessStatusCode)
-        //     {
-        //         return null;
-        //     }
+            var response = await httpClient.GetAsync(_configuration["GoogleApi:OAuthEndPoint"]);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
 
-        //     var json = await response.Content.ReadAsStringAsync();
-        //     return JsonSerializer.Deserialize<GoogleUserInfoDto>(json);
-        // }
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<GoogleUserInfoDto>(json);
+        }
 
-        // public async Task<ServiceResponse> DeactivateAccount(DeactivateAccountDto deactivateAccountDto, int authUserId, string authUserRole)
-        // {
-        //     var targetAccount = await _accountRepo.GetAccountByUserIdAndRole(
-        //         deactivateAccountDto.TargetUserId,
-        //         deactivateAccountDto.TargetUserRole
-        //     );
-        //     if (targetAccount == null)
-        //     {
-        //         return new ServiceResponse
-        //         {
-        //             Status = ResStatusCode.UNAUTHORIZED,
-        //             Success = false,
-        //             Message = ErrorMessage.USER_NOT_FOUND,
-        //         };
-        //     }
+        public async Task<ServiceResponse> CustomerDeactivateAccount(int customerId)
+        {
+            var targetAccount = await _accountRepo.GetAccountByUserId(customerId, true);
+            if (targetAccount == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.UNAUTHORIZED,
+                    Success = false,
+                    Message = ErrorMessage.USER_NOT_FOUND,
+                };
+            }
 
-        //     // Guest: can only deactivate his/her account
-        //     // Admin: can deactivate any account
-        //     if (
-        //         authUserRole == UserRole.Guest.ToString()
-        //         && (authUserRole != targetAccount.Role.ToString() || authUserId != targetAccount.Id)
-        //     )
-        //     {
-        //         return new ServiceResponse
-        //         {
-        //             Status = ResStatusCode.FORBIDDEN,
-        //             Success = false,
-        //             Message = ErrorMessage.NO_PERMISSION,
-        //         };
-        //     }
+            targetAccount.IsActive = false;
+            await _accountRepo.UpdateAccount(targetAccount);
 
-        //     targetAccount.IsActive = false;
-        //     await _accountRepo.UpdateAccount(targetAccount);
-
-        //     return new ServiceResponse
-        //     {
-        //         Status = ResStatusCode.OK,
-        //         Success = true,
-        //         Message = SuccessMessage.DEACTIVATE_ACCOUNT_SUCCESSFULLY,
-        //     };
-        // }
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.DEACTIVATE_ACCOUNT_SUCCESSFULLY,
+            };
+        }
     }
 }
