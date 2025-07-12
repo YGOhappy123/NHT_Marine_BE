@@ -108,7 +108,6 @@ namespace NHT_Marine_BE.Services
 
         public async Task<ServiceResponse<Customer>> CustomerSignUp(SignUpDto signUpDto)
         {
-            Console.WriteLine(BCrypt.Net.BCrypt.HashPassword("customer0006"));
             var existedAccount = await _accountRepo.GetAccountByUsername(signUpDto.Username);
             if (existedAccount != null)
             {

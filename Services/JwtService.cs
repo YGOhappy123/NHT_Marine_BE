@@ -42,7 +42,11 @@ namespace NHT_Marine_BE.Services
             var claims =
                 user is Customer
                     ? new[] { new Claim(ClaimTypes.Name, ((Customer)user).CustomerId.ToString()) }
-                    : new[] { new Claim(ClaimTypes.Name, ((Staff)user).StaffId.ToString()), new Claim(ClaimTypes.Role, roleId.ToString()) };
+                    : new[]
+                    {
+                        new Claim(ClaimTypes.Name, ((Staff)user).StaffId.ToString()),
+                        new Claim(ClaimTypes.Role, roleId.ToString()!),
+                    };
 
             return GenerateToken(claims, "Jwt:AccessTokenSecret", 30);
         }
