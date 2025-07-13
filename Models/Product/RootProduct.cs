@@ -13,7 +13,10 @@ namespace NHT_Marine_BE.Models.Product
         public string ImageUrl { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int? CreatedBy { get; set; }
-        public ProductCategory? Category { get; set; }
+        public Category? Category { get; set; }
         public Staff? CreatedByStaff { get; set; }
+        public List<ProductItem> ProductItems { get; set; } = [];
+        public List<ProductVariant> Variants { get; set; } = [];
+        public List<ProductPromotion> Promotions { get; set; } = [];
     }
 }

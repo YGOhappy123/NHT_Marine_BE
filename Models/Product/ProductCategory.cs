@@ -3,7 +3,7 @@ using NHT_Marine_BE.Models.User;
 
 namespace NHT_Marine_BE.Models.Product
 {
-    public class ProductCategory
+    public class Category
     {
         [Key]
         public int CategoryId { get; set; }
@@ -12,6 +12,7 @@ namespace NHT_Marine_BE.Models.Product
         public int? CreatedBy { get; set; }
         public int? ParentId { get; set; }
         public Staff? CreatedByStaff { get; set; }
-        public ProductCategory? ParentCategory { get; set; }
+        public Category? ParentCategory { get; set; }
+        public List<Category> ChildrenCategories { get; set; } = [];
     }
 }

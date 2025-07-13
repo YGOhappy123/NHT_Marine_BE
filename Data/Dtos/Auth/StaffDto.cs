@@ -9,6 +9,7 @@ namespace NHT_Marine_BE.Data.Dtos.Auth
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int? RoleId { get; set; }
         public string? Role { get; set; }
+        public string[]? Permissions { get; set; }
         public int? CreatedBy { get; set; }
         public string? CreatedByStaff { get; set; }
         public bool? IsActive { get; set; } = true;

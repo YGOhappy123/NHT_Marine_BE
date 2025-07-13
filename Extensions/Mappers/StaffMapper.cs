@@ -16,6 +16,7 @@ namespace NHT_Marine_BE.Extensions.Mappers
                 CreatedAt = staff.CreatedAt,
                 RoleId = staff.RoleId,
                 Role = staff.Role?.Name,
+                Permissions = staff.Role?.Permissions == null ? null : [.. staff.Role.Permissions.Select(rp => rp.Permission!.Code)],
                 CreatedBy = staff.CreatedBy,
                 CreatedByStaff = staff.CreatedByStaff?.FullName,
                 IsActive = staff.Account != null && staff.Account.IsActive,

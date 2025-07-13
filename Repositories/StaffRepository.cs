@@ -69,6 +69,8 @@ namespace NHT_Marine_BE.Repositories
                 .Staffs.Include(st => st.Account)
                 .Include(st => st.CreatedByStaff)
                 .Include(st => st.Role)
+                .ThenInclude(sr => sr.Permissions)
+                .ThenInclude(rp => rp.Permission)
                 .Where(st => st.Account!.IsActive && st.StaffId == staffId)
                 .FirstOrDefaultAsync();
         }
@@ -84,6 +86,8 @@ namespace NHT_Marine_BE.Repositories
                 .Staffs.Include(st => st.Account)
                 .Include(st => st.CreatedByStaff)
                 .Include(st => st.Role)
+                .ThenInclude(sr => sr.Permissions)
+                .ThenInclude(rp => rp.Permission)
                 .SingleOrDefaultAsync(st => st.AccountId == accountId);
         }
 
