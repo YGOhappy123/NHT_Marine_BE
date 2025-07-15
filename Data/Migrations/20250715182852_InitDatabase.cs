@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NHT_Marine_BE.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class DatabaseVersionOne : Migration
+    public partial class InitDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -422,6 +422,40 @@ namespace NHT_Marine_BE.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProductDamageReports",
+                columns: table => new
+                {
+                    ReportId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StorageId = table.Column<int>(type: "int", nullable: true),
+                    TypeId = table.Column<int>(type: "int", nullable: true),
+                    TotalExpectedCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReportedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReportedBy = table.Column<int>(type: "int", nullable: true),
+                    ReportedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductDamageReports", x => x.ReportId);
+                    table.ForeignKey(
+                        name: "FK_ProductDamageReports_DamageTypes_TypeId",
+                        column: x => x.TypeId,
+                        principalTable: "DamageTypes",
+                        principalColumn: "TypeId");
+                    table.ForeignKey(
+                        name: "FK_ProductDamageReports_Staffs_ReportedByStaffStaffId",
+                        column: x => x.ReportedByStaffStaffId,
+                        principalTable: "Staffs",
+                        principalColumn: "StaffId");
+                    table.ForeignKey(
+                        name: "FK_ProductDamageReports_Storages_StorageId",
+                        column: x => x.StorageId,
+                        principalTable: "Storages",
+                        principalColumn: "StorageId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ChatMessages",
                 columns: table => new
                 {
@@ -662,12 +696,38 @@ namespace NHT_Marine_BE.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DamageReportItems",
+                columns: table => new
+                {
+                    ReportId = table.Column<int>(type: "int", nullable: false),
+                    ProductItemId = table.Column<int>(type: "int", nullable: false),
+                    ExpectedCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DamageReportItems", x => new { x.ReportId, x.ProductItemId });
+                    table.ForeignKey(
+                        name: "FK_DamageReportItems_ProductDamageReports_ReportId",
+                        column: x => x.ReportId,
+                        principalTable: "ProductDamageReports",
+                        principalColumn: "ReportId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DamageReportItems_ProductItems_ProductItemId",
+                        column: x => x.ProductItemId,
+                        principalTable: "ProductItems",
+                        principalColumn: "ProductItemId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ImportItems",
                 columns: table => new
                 {
                     ImportId = table.Column<int>(type: "int", nullable: false),
                     ProductItemId = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -736,47 +796,6 @@ namespace NHT_Marine_BE.Data.Migrations
                         principalTable: "ProductItems",
                         principalColumn: "ProductItemId",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductDamageReports",
-                columns: table => new
-                {
-                    ReportId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductItemId = table.Column<int>(type: "int", nullable: true),
-                    StorageId = table.Column<int>(type: "int", nullable: true),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    ExpectedCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TypeId = table.Column<int>(type: "int", nullable: true),
-                    ReportedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ReportedBy = table.Column<int>(type: "int", nullable: true),
-                    ReportedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductDamageReports", x => x.ReportId);
-                    table.ForeignKey(
-                        name: "FK_ProductDamageReports_DamageTypes_TypeId",
-                        column: x => x.TypeId,
-                        principalTable: "DamageTypes",
-                        principalColumn: "TypeId");
-                    table.ForeignKey(
-                        name: "FK_ProductDamageReports_ProductItems_ProductItemId",
-                        column: x => x.ProductItemId,
-                        principalTable: "ProductItems",
-                        principalColumn: "ProductItemId");
-                    table.ForeignKey(
-                        name: "FK_ProductDamageReports_Staffs_ReportedByStaffStaffId",
-                        column: x => x.ReportedByStaffStaffId,
-                        principalTable: "Staffs",
-                        principalColumn: "StaffId");
-                    table.ForeignKey(
-                        name: "FK_ProductDamageReports_Storages_StorageId",
-                        column: x => x.StorageId,
-                        principalTable: "Storages",
-                        principalColumn: "StorageId");
                 });
 
             migrationBuilder.CreateTable(
@@ -875,6 +894,11 @@ namespace NHT_Marine_BE.Data.Migrations
                 filter: "[AccountId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DamageReportItems_ProductItemId",
+                table: "DamageReportItems",
+                column: "ProductItemId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ImportItems_ProductItemId",
                 table: "ImportItems",
                 column: "ProductItemId");
@@ -933,11 +957,6 @@ namespace NHT_Marine_BE.Data.Migrations
                 name: "IX_ProductAttributes_OptionId",
                 table: "ProductAttributes",
                 column: "OptionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductDamageReports_ProductItemId",
-                table: "ProductDamageReports",
-                column: "ProductItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductDamageReports_ReportedByStaffStaffId",
@@ -1050,6 +1069,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 name: "CustomerAddresses");
 
             migrationBuilder.DropTable(
+                name: "DamageReportItems");
+
+            migrationBuilder.DropTable(
                 name: "ImportItems");
 
             migrationBuilder.DropTable(
@@ -1068,9 +1090,6 @@ namespace NHT_Marine_BE.Data.Migrations
                 name: "ProductAttributes");
 
             migrationBuilder.DropTable(
-                name: "ProductDamageReports");
-
-            migrationBuilder.DropTable(
                 name: "ProductsPromotions");
 
             migrationBuilder.DropTable(
@@ -1086,6 +1105,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 name: "Conversations");
 
             migrationBuilder.DropTable(
+                name: "ProductDamageReports");
+
+            migrationBuilder.DropTable(
                 name: "ProductImports");
 
             migrationBuilder.DropTable(
@@ -1095,22 +1117,22 @@ namespace NHT_Marine_BE.Data.Migrations
                 name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "VariantOptions");
-
-            migrationBuilder.DropTable(
-                name: "DamageTypes");
-
-            migrationBuilder.DropTable(
                 name: "ProductItems");
 
             migrationBuilder.DropTable(
-                name: "Storages");
+                name: "VariantOptions");
 
             migrationBuilder.DropTable(
                 name: "Promotions");
 
             migrationBuilder.DropTable(
                 name: "AppPermissions");
+
+            migrationBuilder.DropTable(
+                name: "DamageTypes");
+
+            migrationBuilder.DropTable(
+                name: "Storages");
 
             migrationBuilder.DropTable(
                 name: "Suppliers");

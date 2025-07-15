@@ -246,6 +246,27 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.ToTable("VariantOptions");
                 });
 
+            modelBuilder.Entity("NHT_Marine_BE.Models.Stock.DamageReportItem", b =>
+                {
+                    b.Property<int?>("ReportId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductItemId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ExpectedCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReportId", "ProductItemId");
+
+                    b.HasIndex("ProductItemId");
+
+                    b.ToTable("DamageReportItems");
+                });
+
             modelBuilder.Entity("NHT_Marine_BE.Models.Stock.DamageType", b =>
                 {
                     b.Property<int>("TypeId")
@@ -271,7 +292,7 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("ProductItemId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
@@ -310,17 +331,8 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportId"));
 
-                    b.Property<decimal>("ExpectedCost")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ProductItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("ReportedAt")
                         .HasColumnType("datetime2");
@@ -334,12 +346,13 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("StorageId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("TotalExpectedCost")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int?>("TypeId")
                         .HasColumnType("int");
 
                     b.HasKey("ReportId");
-
-                    b.HasIndex("ProductItemId");
 
                     b.HasIndex("ReportedByStaffStaffId");
 
@@ -1105,6 +1118,25 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Navigation("Variant");
                 });
 
+            modelBuilder.Entity("NHT_Marine_BE.Models.Stock.DamageReportItem", b =>
+                {
+                    b.HasOne("NHT_Marine_BE.Models.Product.ProductItem", "ProductItem")
+                        .WithMany("DamageReports")
+                        .HasForeignKey("ProductItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NHT_Marine_BE.Models.Stock.ProductDamageReport", "Report")
+                        .WithMany("Items")
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductItem");
+
+                    b.Navigation("Report");
+                });
+
             modelBuilder.Entity("NHT_Marine_BE.Models.Stock.ImportItem", b =>
                 {
                     b.HasOne("NHT_Marine_BE.Models.Stock.ProductImport", "Import")
@@ -1145,10 +1177,6 @@ namespace NHT_Marine_BE.Data.Migrations
 
             modelBuilder.Entity("NHT_Marine_BE.Models.Stock.ProductDamageReport", b =>
                 {
-                    b.HasOne("NHT_Marine_BE.Models.Product.ProductItem", "ProductItem")
-                        .WithMany()
-                        .HasForeignKey("ProductItemId");
-
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "ReportedByStaff")
                         .WithMany()
                         .HasForeignKey("ReportedByStaffStaffId");
@@ -1160,8 +1188,6 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.HasOne("NHT_Marine_BE.Models.Stock.DamageType", "Type")
                         .WithMany()
                         .HasForeignKey("TypeId");
-
-                    b.Navigation("ProductItem");
 
                     b.Navigation("ReportedByStaff");
 
@@ -1415,6 +1441,8 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.Navigation("CartItems");
 
+                    b.Navigation("DamageReports");
+
                     b.Navigation("Imports");
 
                     b.Navigation("Orders");
@@ -1444,6 +1472,11 @@ namespace NHT_Marine_BE.Data.Migrations
             modelBuilder.Entity("NHT_Marine_BE.Models.Product.VariantOption", b =>
                 {
                     b.Navigation("ProductItems");
+                });
+
+            modelBuilder.Entity("NHT_Marine_BE.Models.Stock.ProductDamageReport", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("NHT_Marine_BE.Models.Stock.ProductImport", b =>

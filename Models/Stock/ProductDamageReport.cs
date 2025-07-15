@@ -9,19 +9,17 @@ namespace NHT_Marine_BE.Models.Stock
     {
         [Key]
         public int ReportId { get; set; }
-        public int? ProductItemId { get; set; }
         public int? StorageId { get; set; }
-        public int Quantity { get; set; }
+        public int? TypeId { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        public decimal ExpectedCost { get; set; }
+        public decimal TotalExpectedCost { get; set; }
         public string? Note { get; set; }
-        public int? TypeId { get; set; }
         public DateTime ReportedAt { get; set; } = DateTime.Now;
         public int? ReportedBy { get; set; }
-        public ProductItem? ProductItem { get; set; }
         public Storage? Storage { get; set; }
         public DamageType? Type { get; set; }
         public Staff? ReportedByStaff { get; set; }
+        public List<DamageReportItem> Items { get; set; } = [];
     }
 }

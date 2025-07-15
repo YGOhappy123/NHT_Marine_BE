@@ -55,6 +55,7 @@ namespace NHT_Marine_BE.Data
         public DbSet<ImportItem> ImportItems { get; set; }
         public DbSet<ProductDamageReport> ProductDamageReports { get; set; }
         public DbSet<DamageType> DamageTypes { get; set; }
+        public DbSet<DamageReportItem> DamageReportItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -97,6 +98,14 @@ namespace NHT_Marine_BE.Data
             builder.Entity<ImportItem>().HasKey(ii => new { ii.ImportId, ii.ProductItemId });
             builder.Entity<ImportItem>().HasOne(ii => ii.Import).WithMany(i => i.Items).HasForeignKey(ii => ii.ImportId);
             builder.Entity<ImportItem>().HasOne(ii => ii.ProductItem).WithMany(pi => pi.Imports).HasForeignKey(ii => ii.ProductItemId);
+
+            builder.Entity<DamageReportItem>().HasKey(dri => new { dri.ReportId, dri.ProductItemId });
+            builder.Entity<DamageReportItem>().HasOne(dri => dri.Report).WithMany(pdr => pdr.Items).HasForeignKey(dri => dri.ReportId);
+            builder
+                .Entity<DamageReportItem>()
+                .HasOne(dri => dri.ProductItem)
+                .WithMany(pi => pi.DamageReports)
+                .HasForeignKey(dri => dri.ProductItemId);
         }
     }
 }
