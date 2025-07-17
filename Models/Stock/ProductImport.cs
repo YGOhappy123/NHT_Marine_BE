@@ -14,6 +14,7 @@ namespace NHT_Marine_BE.Models.Stock
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalCost { get; set; }
         public DateTime ImportDate { get; set; }
+        public bool IsDistributed { get; set; } = false;
         public DateTime TrackedAt { get; set; } = DateTime.Now;
         public int? TrackedBy { get; set; }
         public Supplier? Supplier { get; set; }
