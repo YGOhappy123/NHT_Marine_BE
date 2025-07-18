@@ -142,11 +142,13 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IMailerService, MailerService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             return services;
         }

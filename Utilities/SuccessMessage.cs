@@ -10,6 +10,7 @@ namespace NHT_Marine_BE.Utilities
         public const string RESET_PASSWORD_EMAIL_SENT = "RESET_PASSWORD_EMAIL_SENT";
         public const string RESET_PASSWORD_SUCCESSFULLY = "RESET_PASSWORD_SUCCESSFULLY";
         public const string GOOGLE_AUTH_SUCCESSFULLY = "GOOGLE_AUTH_SUCCESSFULLY";
+        public const string VERIFY_PERMISSION_SUCCESSFULLY = "VERIFY_PERMISSION_SUCCESSFULLY";
 
         // Users related
         public const string CHANGE_PASSWORD_SUCCESSFULLY = "CHANGE_PASSWORD_SUCCESSFULLY";
