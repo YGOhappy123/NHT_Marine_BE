@@ -5,7 +5,6 @@ namespace NHT_Marine_BE.Utilities
         // Authentication related
         public const string USERNAME_EXISTED = "USERNAME_EXISTED";
         public const string EMAIL_EXISTED = "EMAIL_EXISTED";
-        public const string PHONE_NUMBER_EXISTED = "PHONE_NUMBER_EXISTED";
         public const string USER_NOT_FOUND = "USER_NOT_FOUND";
         public const string INCORRECT_PASSWORD = "INCORRECT_PASSWORD";
         public const string INCORRECT_USERNAME_OR_PASSWORD = "INCORRECT_USERNAME_OR_PASSWORD";

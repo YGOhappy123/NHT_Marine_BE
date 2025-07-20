@@ -2,7 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NHT_Marine_BE.Data.Dtos.Response;
-using NHT_Marine_BE.Enums;
+using NHT_Marine_BE.Data.Queries;
+using NHT_Marine_BE.Extensions.Mappers;
 using NHT_Marine_BE.Interfaces.Services;
 using NHT_Marine_BE.Utilities;
 
@@ -36,6 +37,27 @@ namespace NHT_Marine_BE.Controllers
             var result = await _roleService.VerifyPermission(int.Parse(authRoleId!), permission);
 
             return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllRoles([FromQuery] BaseQueryObject queryObject)
+        {
+            var result = await _roleService.GetAllRoles(queryObject);
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(
+                result.Status,
+                new SuccessResponseDto
+                {
+                    Data = result.Data!.Select(sr => sr.ToStaffRoleDto()),
+                    Total = result.Total,
+                    Took = result.Took,
+                }
+            );
         }
     }
 }

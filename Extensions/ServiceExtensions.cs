@@ -146,9 +146,11 @@ namespace NHT_Marine_BE.Extensions
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IFileService, FileService>();
             services.AddScoped<IMailerService, MailerService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IStaffService, StaffService>();
 
             return services;
         }
