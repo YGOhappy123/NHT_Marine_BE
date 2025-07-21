@@ -94,5 +94,13 @@ namespace NHT_Marine_BE.Repositories
 
             return (roles, total);
         }
+
+        public async Task<StaffRole?> GetRoleById(int roleId)
+        {
+            return await _dbContext
+                .StaffRoles.Include(sr => sr!.Permissions)
+                .ThenInclude(rp => rp.Permission)
+                .SingleOrDefaultAsync(sr => sr.RoleId == roleId);
+        }
     }
 }

@@ -4,7 +4,7 @@ namespace NHT_Marine_BE.Data.Queries
     {
         public int? Skip { get; set; }
         public int? Limit { get; set; }
-        public string? Sort { get; set; } = "{\"CreatedAt\": \"DESC\"}";
+        public string? Sort { get; set; } = "{}";
         public string? Filter { get; set; } = "{}";
     }
 

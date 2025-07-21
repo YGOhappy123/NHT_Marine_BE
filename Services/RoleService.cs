@@ -1,5 +1,6 @@
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Queries;
+using NHT_Marine_BE.Enums;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Interfaces.Services;
 using NHT_Marine_BE.Models.User;
@@ -50,6 +51,28 @@ namespace NHT_Marine_BE.Services
                 Data = roles,
                 Total = total,
                 Took = roles.Count,
+            };
+        }
+
+        public async Task<ServiceResponse<StaffRole?>> GetRoleById(int roleId, int authRoleId)
+        {
+            var hasViewRolePermission = await _roleRepo.VerifyPermission(authRoleId, Permission.ACCESS_ROLE_DASHBOARD_PAGE.ToString());
+            if (!hasViewRolePermission && roleId != authRoleId)
+            {
+                return new ServiceResponse<StaffRole?>
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var role = await _roleRepo.GetRoleById(roleId);
+            return new ServiceResponse<StaffRole?>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = role,
             };
         }
     }
