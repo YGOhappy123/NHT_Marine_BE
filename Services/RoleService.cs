@@ -11,10 +11,12 @@ namespace NHT_Marine_BE.Services
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepo;
+        private readonly IPermissionRepository _permissionRepo;
 
-        public RoleService(IRoleRepository roleRepo)
+        public RoleService(IRoleRepository roleRepo, IPermissionRepository permissionRepo)
         {
             _roleRepo = roleRepo;
+            _permissionRepo = permissionRepo;
         }
 
         public async Task<ServiceResponse<bool>> VerifyPermission(int authRoleId, string permission)
@@ -73,6 +75,20 @@ namespace NHT_Marine_BE.Services
                 Status = ResStatusCode.OK,
                 Success = true,
                 Data = role,
+            };
+        }
+
+        public async Task<ServiceResponse<List<AppPermission>>> GetAllPermissions(BaseQueryObject queryObject)
+        {
+            var (permissions, total) = await _permissionRepo.GetAllPermissions(queryObject);
+
+            return new ServiceResponse<List<AppPermission>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = permissions,
+                Total = total,
+                Took = permissions.Count,
             };
         }
     }

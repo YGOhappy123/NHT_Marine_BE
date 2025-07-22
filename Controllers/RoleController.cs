@@ -74,5 +74,26 @@ namespace NHT_Marine_BE.Controllers
 
             return StatusCode(result.Status, new SuccessResponseDto { Data = result.Data?.ToStaffRoleDto() });
         }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet("permissions")]
+        public async Task<IActionResult> GetAllPermissions([FromQuery] BaseQueryObject queryObject)
+        {
+            var result = await _roleService.GetAllPermissions(queryObject);
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(
+                result.Status,
+                new SuccessResponseDto
+                {
+                    Data = result.Data!.Select(ap => ap.ToAppPermissionDto()),
+                    Total = result.Total,
+                    Took = result.Took,
+                }
+            );
+        }
     }
 }

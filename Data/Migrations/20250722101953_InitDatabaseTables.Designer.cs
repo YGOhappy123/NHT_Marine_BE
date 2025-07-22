@@ -12,8 +12,8 @@ using NHT_Marine_BE.Data;
 namespace NHT_Marine_BE.Data.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250717204724_AddInventoryDistributedStatus")]
-    partial class AddInventoryDistributedStatus
+    [Migration("20250722101953_InitDatabaseTables")]
+    partial class InitDatabaseTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,9 +39,6 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CreatedByStaffStaffId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -51,7 +48,7 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.HasIndex("CreatedByStaffStaffId");
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("ParentId");
 
@@ -156,9 +153,6 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CreatedByStaffStaffId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -181,7 +175,7 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.HasKey("PromotionId");
 
-                    b.HasIndex("CreatedByStaffStaffId");
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("Promotions");
                 });
@@ -203,9 +197,6 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CreatedByStaffStaffId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -222,7 +213,7 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("CreatedByStaffStaffId");
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("RootProducts");
                 });
@@ -343,9 +334,6 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("ReportedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReportedByStaffStaffId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("StorageId")
                         .HasColumnType("int");
 
@@ -357,7 +345,7 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.HasKey("ReportId");
 
-                    b.HasIndex("ReportedByStaffStaffId");
+                    b.HasIndex("ReportedBy");
 
                     b.HasIndex("StorageId");
 
@@ -396,14 +384,11 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("TrackedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TrackedByStaffStaffId")
-                        .HasColumnType("int");
-
                     b.HasKey("ImportId");
 
                     b.HasIndex("SupplierId");
 
-                    b.HasIndex("TrackedByStaffStaffId");
+                    b.HasIndex("TrackedBy");
 
                     b.ToTable("ProductImports");
                 });
@@ -497,9 +482,6 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CreatedByStaffStaffId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("ExpiredAt")
                         .HasColumnType("datetime2");
 
@@ -514,7 +496,7 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.HasKey("CouponId");
 
-                    b.HasIndex("CreatedByStaffStaffId");
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("Coupons");
                 });
@@ -687,16 +669,13 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<int?>("UpdatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UpdatedByStaffStaffId")
-                        .HasColumnType("int");
-
                     b.HasKey("LogId");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("StatusId");
 
-                    b.HasIndex("UpdatedByStaffStaffId");
+                    b.HasIndex("UpdatedBy");
 
                     b.ToTable("OrderStatusUpdateLogs");
                 });
@@ -714,6 +693,10 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.Property<int?>("ToStatusId")
                         .HasColumnType("int");
+
+                    b.Property<string>("TransitionLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("TransitionId");
 
@@ -1024,7 +1007,7 @@ namespace NHT_Marine_BE.Data.Migrations
                 {
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "CreatedByStaff")
                         .WithMany()
-                        .HasForeignKey("CreatedByStaffStaffId");
+                        .HasForeignKey("CreatedBy");
 
                     b.HasOne("NHT_Marine_BE.Models.Product.Category", "ParentCategory")
                         .WithMany("ChildrenCategories")
@@ -1095,7 +1078,7 @@ namespace NHT_Marine_BE.Data.Migrations
                 {
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "CreatedByStaff")
                         .WithMany()
-                        .HasForeignKey("CreatedByStaffStaffId");
+                        .HasForeignKey("CreatedBy");
 
                     b.Navigation("CreatedByStaff");
                 });
@@ -1108,7 +1091,7 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "CreatedByStaff")
                         .WithMany()
-                        .HasForeignKey("CreatedByStaffStaffId");
+                        .HasForeignKey("CreatedBy");
 
                     b.Navigation("Category");
 
@@ -1185,7 +1168,7 @@ namespace NHT_Marine_BE.Data.Migrations
                 {
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "ReportedByStaff")
                         .WithMany()
-                        .HasForeignKey("ReportedByStaffStaffId");
+                        .HasForeignKey("ReportedBy");
 
                     b.HasOne("NHT_Marine_BE.Models.Stock.Storage", "Storage")
                         .WithMany()
@@ -1210,7 +1193,7 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "TrackedByStaff")
                         .WithMany()
-                        .HasForeignKey("TrackedByStaffStaffId");
+                        .HasForeignKey("TrackedBy");
 
                     b.Navigation("Supplier");
 
@@ -1230,7 +1213,7 @@ namespace NHT_Marine_BE.Data.Migrations
                 {
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "CreatedByStaff")
                         .WithMany()
-                        .HasForeignKey("CreatedByStaffStaffId");
+                        .HasForeignKey("CreatedBy");
 
                     b.Navigation("CreatedByStaff");
                 });
@@ -1302,7 +1285,7 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.HasOne("NHT_Marine_BE.Models.User.Staff", "UpdatedByStaff")
                         .WithMany()
-                        .HasForeignKey("UpdatedByStaffStaffId");
+                        .HasForeignKey("UpdatedBy");
 
                     b.Navigation("Order");
 

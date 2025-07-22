@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NHT_Marine_BE.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDatabase : Migration
+    public partial class InitDatabaseTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -156,7 +156,8 @@ namespace NHT_Marine_BE.Data.Migrations
                     TransitionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FromStatusId = table.Column<int>(type: "int", nullable: true),
-                    ToStatusId = table.Column<int>(type: "int", nullable: true)
+                    ToStatusId = table.Column<int>(type: "int", nullable: true),
+                    TransitionLabel = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -322,8 +323,7 @@ namespace NHT_Marine_BE.Data.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    ParentId = table.Column<int>(type: "int", nullable: true),
-                    CreatedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
+                    ParentId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -334,8 +334,8 @@ namespace NHT_Marine_BE.Data.Migrations
                         principalTable: "Categories",
                         principalColumn: "CategoryId");
                     table.ForeignKey(
-                        name: "FK_Categories_Staffs_CreatedByStaffStaffId",
-                        column: x => x.CreatedByStaffStaffId,
+                        name: "FK_Categories_Staffs_CreatedBy",
+                        column: x => x.CreatedBy,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
                 });
@@ -353,15 +353,14 @@ namespace NHT_Marine_BE.Data.Migrations
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     ExpiredAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
+                    CreatedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Coupons", x => x.CouponId);
                     table.ForeignKey(
-                        name: "FK_Coupons_Staffs_CreatedByStaffStaffId",
-                        column: x => x.CreatedByStaffStaffId,
+                        name: "FK_Coupons_Staffs_CreatedBy",
+                        column: x => x.CreatedBy,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
                 });
@@ -376,16 +375,16 @@ namespace NHT_Marine_BE.Data.Migrations
                     InvoiceNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ImportDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDistributed = table.Column<bool>(type: "bit", nullable: false),
                     TrackedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TrackedBy = table.Column<int>(type: "int", nullable: true),
-                    TrackedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
+                    TrackedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductImports", x => x.ImportId);
                     table.ForeignKey(
-                        name: "FK_ProductImports_Staffs_TrackedByStaffStaffId",
-                        column: x => x.TrackedByStaffStaffId,
+                        name: "FK_ProductImports_Staffs_TrackedBy",
+                        column: x => x.TrackedBy,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
                     table.ForeignKey(
@@ -408,15 +407,14 @@ namespace NHT_Marine_BE.Data.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
+                    CreatedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Promotions", x => x.PromotionId);
                     table.ForeignKey(
-                        name: "FK_Promotions_Staffs_CreatedByStaffStaffId",
-                        column: x => x.CreatedByStaffStaffId,
+                        name: "FK_Promotions_Staffs_CreatedBy",
+                        column: x => x.CreatedBy,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
                 });
@@ -432,8 +430,7 @@ namespace NHT_Marine_BE.Data.Migrations
                     TotalExpectedCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReportedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ReportedBy = table.Column<int>(type: "int", nullable: true),
-                    ReportedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
+                    ReportedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -444,8 +441,8 @@ namespace NHT_Marine_BE.Data.Migrations
                         principalTable: "DamageTypes",
                         principalColumn: "TypeId");
                     table.ForeignKey(
-                        name: "FK_ProductDamageReports_Staffs_ReportedByStaffStaffId",
-                        column: x => x.ReportedByStaffStaffId,
+                        name: "FK_ProductDamageReports_Staffs_ReportedBy",
+                        column: x => x.ReportedBy,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
                     table.ForeignKey(
@@ -493,8 +490,7 @@ namespace NHT_Marine_BE.Data.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: true),
-                    CreatedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
+                    CreatedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -505,8 +501,8 @@ namespace NHT_Marine_BE.Data.Migrations
                         principalTable: "Categories",
                         principalColumn: "CategoryId");
                     table.ForeignKey(
-                        name: "FK_RootProducts_Staffs_CreatedByStaffStaffId",
-                        column: x => x.CreatedByStaffStaffId,
+                        name: "FK_RootProducts_Staffs_CreatedBy",
+                        column: x => x.CreatedBy,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
                 });
@@ -647,8 +643,7 @@ namespace NHT_Marine_BE.Data.Migrations
                     OrderId = table.Column<int>(type: "int", nullable: true),
                     StatusId = table.Column<int>(type: "int", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedBy = table.Column<int>(type: "int", nullable: true),
-                    UpdatedByStaffStaffId = table.Column<int>(type: "int", nullable: true)
+                    UpdatedBy = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -664,8 +659,8 @@ namespace NHT_Marine_BE.Data.Migrations
                         principalTable: "Orders",
                         principalColumn: "OrderId");
                     table.ForeignKey(
-                        name: "FK_OrderStatusUpdateLogs_Staffs_UpdatedByStaffStaffId",
-                        column: x => x.UpdatedByStaffStaffId,
+                        name: "FK_OrderStatusUpdateLogs_Staffs_UpdatedBy",
+                        column: x => x.UpdatedBy,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
                 });
@@ -847,9 +842,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 column: "ProductItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categories_CreatedByStaffStaffId",
+                name: "IX_Categories_CreatedBy",
                 table: "Categories",
-                column: "CreatedByStaffStaffId");
+                column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_ParentId",
@@ -872,9 +867,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Coupons_CreatedByStaffStaffId",
+                name: "IX_Coupons_CreatedBy",
                 table: "Coupons",
-                column: "CreatedByStaffStaffId");
+                column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerAddresses_CustomerId",
@@ -949,9 +944,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 column: "StatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderStatusUpdateLogs_UpdatedByStaffStaffId",
+                name: "IX_OrderStatusUpdateLogs_UpdatedBy",
                 table: "OrderStatusUpdateLogs",
-                column: "UpdatedByStaffStaffId");
+                column: "UpdatedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductAttributes_OptionId",
@@ -959,9 +954,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 column: "OptionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductDamageReports_ReportedByStaffStaffId",
+                name: "IX_ProductDamageReports_ReportedBy",
                 table: "ProductDamageReports",
-                column: "ReportedByStaffStaffId");
+                column: "ReportedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductDamageReports_StorageId",
@@ -979,9 +974,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 column: "SupplierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductImports_TrackedByStaffStaffId",
+                name: "IX_ProductImports_TrackedBy",
                 table: "ProductImports",
-                column: "TrackedByStaffStaffId");
+                column: "TrackedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductItems_RootProductId",
@@ -999,9 +994,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 column: "RootProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Promotions_CreatedByStaffStaffId",
+                name: "IX_Promotions_CreatedBy",
                 table: "Promotions",
-                column: "CreatedByStaffStaffId");
+                column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolesPermissions_PermissionId",
@@ -1014,9 +1009,9 @@ namespace NHT_Marine_BE.Data.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RootProducts_CreatedByStaffStaffId",
+                name: "IX_RootProducts_CreatedBy",
                 table: "RootProducts",
-                column: "CreatedByStaffStaffId");
+                column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Staffs_AccountId",

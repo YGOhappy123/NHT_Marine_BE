@@ -62,6 +62,15 @@ namespace NHT_Marine_BE.Data
             // Handle enum conversions
             builder.Entity<CustomerCart>().Property(cc => cc.Status).HasConversion<string>();
 
+            // Handle foreign keys which are not auto-setup
+            builder.Entity<Category>().HasOne(c => c.CreatedByStaff).WithMany().HasForeignKey(c => c.CreatedBy);
+            builder.Entity<RootProduct>().HasOne(rp => rp.CreatedByStaff).WithMany().HasForeignKey(rp => rp.CreatedBy);
+            builder.Entity<Promotion>().HasOne(p => p.CreatedByStaff).WithMany().HasForeignKey(p => p.CreatedBy);
+            builder.Entity<Coupon>().HasOne(c => c.CreatedByStaff).WithMany().HasForeignKey(c => c.CreatedBy);
+            builder.Entity<ProductImport>().HasOne(pi => pi.TrackedByStaff).WithMany().HasForeignKey(pi => pi.TrackedBy);
+            builder.Entity<ProductDamageReport>().HasOne(pdr => pdr.ReportedByStaff).WithMany().HasForeignKey(pdr => pdr.ReportedBy);
+            builder.Entity<OrderStatusUpdateLog>().HasOne(ul => ul.UpdatedByStaff).WithMany().HasForeignKey(ul => ul.UpdatedBy);
+
             // Handle table self-references
             builder.Entity<Staff>().HasOne(s => s.CreatedByStaff).WithMany(s => s.CreatedStaffs).HasForeignKey(s => s.CreatedBy);
             builder.Entity<Category>().HasOne(c => c.ParentCategory).WithMany(c => c.ChildrenCategories).HasForeignKey(c => c.ParentId);

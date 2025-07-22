@@ -9,5 +9,6 @@ namespace NHT_Marine_BE.Interfaces.Services
         Task<ServiceResponse<bool>> VerifyPermission(int authRoleId, string permission);
         Task<ServiceResponse<List<StaffRole>>> GetAllRoles(BaseQueryObject queryObject);
         Task<ServiceResponse<StaffRole?>> GetRoleById(int roleId, int authRoleId);
+        Task<ServiceResponse<List<AppPermission>>> GetAllPermissions(BaseQueryObject queryObject);
     }
 }

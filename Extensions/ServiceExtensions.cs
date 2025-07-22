@@ -143,6 +143,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IPermissionRepository, PermissionRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
