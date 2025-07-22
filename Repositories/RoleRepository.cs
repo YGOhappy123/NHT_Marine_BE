@@ -102,5 +102,33 @@ namespace NHT_Marine_BE.Repositories
                 .ThenInclude(rp => rp.Permission)
                 .SingleOrDefaultAsync(sr => sr.RoleId == roleId);
         }
+
+        public async Task<StaffRole?> GetRoleByName(string roleName)
+        {
+            return await _dbContext.StaffRoles.Where(sr => sr.Name == roleName).SingleOrDefaultAsync();
+        }
+
+        public async Task<bool> IsRoleBeingUsed(int roleId)
+        {
+            return await _dbContext.Staffs.AnyAsync(s => s.RoleId == roleId);
+        }
+
+        public async Task AddRole(StaffRole role)
+        {
+            _dbContext.StaffRoles.Add(role);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateRole(StaffRole role)
+        {
+            _dbContext.StaffRoles.Update(role);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteRole(StaffRole role)
+        {
+            _dbContext.StaffRoles.Remove(role);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

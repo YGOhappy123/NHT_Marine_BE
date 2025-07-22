@@ -13,6 +13,9 @@ namespace NHT_Marine_BE.Utilities
         public const string NO_PERMISSION = "NO_PERMISSION";
 
         // Users related
+        public const string ROLE_NOT_FOUND = "ROLE_NOT_FOUND";
+        public const string ROLE_EXISTED = "ROLE_EXISTED";
+        public const string ROLE_BEING_USED = "ROLE_BEING_USED";
 
         // Services related
         public const string UPLOAD_IMAGE_FAILED = "UPLOAD_IMAGE_FAILED";

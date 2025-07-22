@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NHT_Marine_BE.Data.Dtos.Auth;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Extensions.Mappers;
@@ -73,6 +74,67 @@ namespace NHT_Marine_BE.Controllers
             }
 
             return StatusCode(result.Status, new SuccessResponseDto { Data = result.Data?.ToStaffRoleDto() });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost]
+        public async Task<IActionResult> AddNewRole([FromBody] CreateUpdateRoleDto createRoleDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _roleService.AddNewRole(createRoleDto, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("{roleId:int}")]
+        public async Task<IActionResult> UpdateRole([FromRoute] int roleId, [FromBody] CreateUpdateRoleDto UpdateRoleDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _roleService.UpdateRole(UpdateRoleDto, roleId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpDelete("{roleId:int}")]
+        public async Task<IActionResult> RemoveRole([FromRoute] int roleId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _roleService.RemoveRole(roleId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
 
         [Authorize(Policy = "StaffOnly")]

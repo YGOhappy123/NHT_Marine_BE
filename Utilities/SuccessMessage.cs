@@ -16,6 +16,9 @@ namespace NHT_Marine_BE.Utilities
         public const string CHANGE_PASSWORD_SUCCESSFULLY = "CHANGE_PASSWORD_SUCCESSFULLY";
         public const string UPDATE_USER_SUCCESSFULLY = "UPDATE_USER_SUCCESSFULLY";
         public const string CREATE_STAFF_SUCCESSFULLY = "CREATE_STAFF_SUCCESSFULLY";
+        public const string CREATE_ROLE_SUCCESSFULLY = "CREATE_ROLE_SUCCESSFULLY";
+        public const string UPDATE_ROLE_SUCCESSFULLY = "UPDATE_ROLE_SUCCESSFULLY";
+        public const string DELETE_ROLE_SUCCESSFULLY = "DELETE_ROLE_SUCCESSFULLY";
 
         // Services related
         public const string UPLOAD_IMAGE_SUCCESSFULLY = "UPLOAD_IMAGE_SUCCESSFULLY";
