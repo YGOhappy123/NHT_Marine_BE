@@ -102,7 +102,7 @@ namespace NHT_Marine_BE.Data
 
             builder.Entity<Inventory>().HasKey(i => new { i.StorageId, i.ProductItemId });
             builder.Entity<Inventory>().HasOne(i => i.Storage).WithMany(s => s.ProductItems).HasForeignKey(i => i.StorageId);
-            builder.Entity<Inventory>().HasOne(i => i.ProductItem).WithMany(pi => pi.Storages).HasForeignKey(i => i.ProductItemId);
+            builder.Entity<Inventory>().HasOne(i => i.ProductItem).WithMany(pi => pi.Inventories).HasForeignKey(i => i.ProductItemId);
 
             builder.Entity<ImportItem>().HasKey(ii => new { ii.ImportId, ii.ProductItemId });
             builder.Entity<ImportItem>().HasOne(ii => ii.Import).WithMany(i => i.Items).HasForeignKey(ii => ii.ImportId);

@@ -5,7 +5,7 @@ namespace NHT_Marine_BE.Interfaces.Repositories
 {
     public interface IRoleRepository
     {
-        public Task<bool> VerifyPermission(int authRoleId, string permission);
+        Task<bool> VerifyPermission(int authRoleId, string permission);
         Task<(List<StaffRole>, int)> GetAllRoles(BaseQueryObject queryObject);
         Task<StaffRole?> GetRoleById(int roleId);
         Task<StaffRole?> GetRoleByName(string roleName);

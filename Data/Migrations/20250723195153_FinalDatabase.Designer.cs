@@ -12,8 +12,8 @@ using NHT_Marine_BE.Data;
 namespace NHT_Marine_BE.Data.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250722101953_InitDatabaseTables")]
-    partial class InitDatabaseTables
+    [Migration("20250723195153_FinalDatabase")]
+    partial class FinalDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1148,7 +1148,7 @@ namespace NHT_Marine_BE.Data.Migrations
             modelBuilder.Entity("NHT_Marine_BE.Models.Stock.Inventory", b =>
                 {
                     b.HasOne("NHT_Marine_BE.Models.Product.ProductItem", "ProductItem")
-                        .WithMany("Storages")
+                        .WithMany("Inventories")
                         .HasForeignKey("ProductItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1434,9 +1434,9 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.Navigation("Imports");
 
-                    b.Navigation("Orders");
+                    b.Navigation("Inventories");
 
-                    b.Navigation("Storages");
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("NHT_Marine_BE.Models.Product.ProductVariant", b =>

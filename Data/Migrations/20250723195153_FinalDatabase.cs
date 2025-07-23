@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NHT_Marine_BE.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDatabaseTables : Migration
+    public partial class FinalDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -130,7 +130,13 @@ namespace NHT_Marine_BE.Extensions
         {
             services.AddDbContext<ApplicationDBContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("HotelDbConnectionString"));
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DbConnectionString"),
+                    options =>
+                    {
+                        options.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                    }
+                );
             });
 
             return services;
@@ -144,6 +150,8 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IStaffRepository, StaffRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
@@ -152,6 +160,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IStaffService, StaffService>();
+            services.AddScoped<IProductService, ProductService>();
 
             return services;
         }

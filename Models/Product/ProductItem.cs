@@ -20,7 +20,7 @@ namespace NHT_Marine_BE.Models.Product
         public List<CartItem> CartItems { get; set; } = [];
         public List<ProductAttribute> Attributes { get; set; } = [];
         public List<OrderItem> Orders { get; set; } = [];
-        public List<Inventory> Storages { get; set; } = [];
+        public List<Inventory> Inventories { get; set; } = [];
         public List<ImportItem> Imports { get; set; } = [];
         public List<DamageReportItem> DamageReports { get; set; } = [];
     }
