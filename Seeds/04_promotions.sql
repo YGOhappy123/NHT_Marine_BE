@@ -28,23 +28,23 @@ INSERT INTO dbo.ProductsPromotions
     (PromotionId, ProductId)
 VALUES
     -- Promotion 1: Siêu ưu đãi dòng cám cao cấp
-    (11, 1), -- AF- PRO CÁM
-    (11, 2), -- Arica cám
-    (11, 3), -- Boost Koi – Growth Color
+    (1, 1), -- AF- PRO CÁM
+    (1, 2), -- Arica cám
+    (1, 3), -- Boost Koi – Growth Color
     -- Promotion 2: Guppy mùa lễ hội
-    (12, 6), -- Cá 7 màu koi đỏ
-    (12, 5), -- Cá 7 màu koi đen
-    (12, 4), -- Ba ba
+    (2, 6), -- Cá 7 màu koi đỏ
+    (2, 5), -- Cá 7 màu koi đen
+    (2, 4), -- Ba ba
     -- Promotion 3: Khuyến mãi combo sản phẩm tăng trưởng
-    (13, 3), -- Boost Koi – Growth Color
-    (13, 1), -- AF- PRO CÁM
-    (13, 2), -- Arica cám
+    (3, 3), -- Boost Koi – Growth Color
+    (3, 1), -- AF- PRO CÁM
+    (3, 2), -- Arica cám
     -- Promotion 4: Mua cá tặng yêu thương
-    (14, 6), -- Cá 7 màu koi đỏ
-    (14, 5), -- Cá 7 màu koi đen
-    (14, 4), -- Ba ba
+    (4, 6), -- Cá 7 màu koi đỏ
+    (4, 5), -- Cá 7 màu koi đen
+    (4, 4), -- Ba ba
     -- Promotion 5: Ưu đãi dinh dưỡng mùa hè
-    (15, 3), -- Boost Koi – Growth Color
-    (15, 1), -- AF- PRO CÁM
-    (15, 2); -- Arica cám
+    (5, 3), -- Boost Koi – Growth Color
+    (5, 1), -- AF- PRO CÁM
+    (5, 2); -- Arica cám
 GO
