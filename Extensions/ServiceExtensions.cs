@@ -152,6 +152,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IDamageTypeRepository, DamageTypeRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
@@ -161,6 +162,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IStaffService, StaffService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IDamageTypeService, DamageTypeService>();
 
             return services;
         }
