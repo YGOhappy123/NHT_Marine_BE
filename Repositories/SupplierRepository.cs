@@ -9,16 +9,16 @@ using NHT_Marine_BE.Utilities;
 
 namespace NHT_Marine_BE.Repositories
 {
-    public class StorageTypeRepository : IStorageTypeRepository
+    public class SupplierRepository : ISupplierRepository
     {
         private readonly ApplicationDBContext _dbContext;
 
-        public StorageTypeRepository(ApplicationDBContext context)
+        public SupplierRepository(ApplicationDBContext context)
         {
             _dbContext = context;
         }
 
-        private IQueryable<StorageType> ApplyFilters(IQueryable<StorageType> query, Dictionary<string, object> filters)
+        private IQueryable<Supplier> ApplyFilters(IQueryable<Supplier> query, Dictionary<string, object> filters)
         {
             foreach (var filter in filters)
             {
@@ -41,7 +41,7 @@ namespace NHT_Marine_BE.Repositories
             return query;
         }
 
-        private IQueryable<StorageType> ApplySorting(IQueryable<StorageType> query, Dictionary<string, string> sort)
+        private IQueryable<Supplier> ApplySorting(IQueryable<Supplier> query, Dictionary<string, string> sort)
         {
             foreach (var order in sort)
             {
@@ -61,9 +61,9 @@ namespace NHT_Marine_BE.Repositories
             );
         }
 
-        public async Task<(List<StorageType>, int)> GetAllStorageTypes(BaseQueryObject queryObject)
+        public async Task<(List<Supplier>, int)> GetAllSuppliers(BaseQueryObject queryObject)
         {
-            var query = _dbContext.StorageTypes.AsQueryable();
+            var query = _dbContext.Suppliers.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(queryObject.Filter))
             {
@@ -90,36 +90,36 @@ namespace NHT_Marine_BE.Repositories
             return (roles, total);
         }
 
-        public async Task<StorageType?> GetStorageTypeById(int storageTypeId)
+        public async Task<Supplier?> GetSupplierById(int supplierId)
         {
-            return await _dbContext.StorageTypes.SingleOrDefaultAsync(st => st.TypeId == storageTypeId);
+            return await _dbContext.Suppliers.SingleOrDefaultAsync(s => s.SupplierId == supplierId);
         }
 
-        public async Task<StorageType?> GetStorageTypeByName(string storageTypeName)
+        public async Task<Supplier?> GetSupplierByName(string supplierName)
         {
-            return await _dbContext.StorageTypes.Where(st => st.Name == storageTypeName).SingleOrDefaultAsync();
+            return await _dbContext.Suppliers.Where(s => s.Name == supplierName).SingleOrDefaultAsync();
         }
 
-        public async Task<bool> IsStorageTypeBeingUsed(int storageTypeId)
+        public async Task<bool> IsSSupplierBeingUsed(int supplierId)
         {
-            return await _dbContext.Storages.AnyAsync(sto => sto.TypeId == storageTypeId);
+            return await _dbContext.ProductImports.AnyAsync(sto => sto.SupplierId == supplierId);
         }
 
-        public async Task AddStorageType(StorageType storageType)
+        public async Task AddSupplier(Supplier supplier)
         {
-            _dbContext.StorageTypes.Add(storageType);
+            _dbContext.Suppliers.Add(supplier);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task UpdateStorageType(StorageType storageType)
+        public async Task UpdateSupplier(Supplier supplier)
         {
-            _dbContext.StorageTypes.Update(storageType);
+            _dbContext.Suppliers.Update(supplier);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task DeleteStorageType(StorageType storageType)
+        public async Task DeleteSupplier(Supplier supplier)
         {
-            _dbContext.StorageTypes.Remove(storageType);
+            _dbContext.Suppliers.Remove(supplier);
             await _dbContext.SaveChangesAsync();
         }
     }

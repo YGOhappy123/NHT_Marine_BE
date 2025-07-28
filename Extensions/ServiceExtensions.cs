@@ -154,6 +154,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IDamageTypeRepository, DamageTypeRepository>();
             services.AddScoped<IStorageTypeRepository, StorageTypeRepository>();
+            services.AddScoped<ISupplierRepository, SupplierRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
@@ -165,6 +166,8 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IDamageTypeService, DamageTypeService>();
             services.AddScoped<IStorageTypeService, StorageTypeService>();
+            services.AddScoped<ISupplierService, SupplierService>();
+
             return services;
         }
 
