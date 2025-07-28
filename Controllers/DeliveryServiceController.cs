@@ -1,8 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NHT_Marine_BE.Data.Dtos.Auth;
+using NHT_Marine_BE.Data.Dtos.Order;
 using NHT_Marine_BE.Data.Dtos.Response;
-using NHT_Marine_BE.Data.Dtos.Stock;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Extensions.Mappers;
 using NHT_Marine_BE.Interfaces.Services;
@@ -11,14 +12,14 @@ using NHT_Marine_BE.Utilities;
 namespace NHT_Marine_BE.Controllers
 {
     [ApiController]
-    [Route("/damagetypes")]
-    public class DamageTypeController : ControllerBase
+    [Route("/delivery-services")]
+    public class DeliveryServiceController : ControllerBase
     {
-        private readonly IDamageTypeService _damageTypeService;
+        private readonly IDeliveryServiceService _deliveryServiceService;
 
-        public DamageTypeController(IDamageTypeService damageTypeService)
+        public DeliveryServiceController(IDeliveryServiceService deliveryServiceService)
         {
-            _damageTypeService = damageTypeService;
+            _deliveryServiceService = deliveryServiceService;
         }
 
         [Authorize(Policy = "StaffOnly")]
@@ -35,16 +36,16 @@ namespace NHT_Marine_BE.Controllers
 
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _damageTypeService.VerifyPermission(int.Parse(authRoleId!), permission);
+            var result = await _deliveryServiceService.VerifyPermission(int.Parse(authRoleId!), permission);
 
             return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
 
         [Authorize(Policy = "StaffOnly")]
         [HttpGet]
-        public async Task<IActionResult> GetAllDamageTypes([FromQuery] BaseQueryObject queryObject)
+        public async Task<IActionResult> GetAllDeliveryServices([FromQuery] BaseQueryObject queryObject)
         {
-            var result = await _damageTypeService.GetAllDamageTypes(queryObject);
+            var result = await _deliveryServiceService.GetAllDeliveryServices(queryObject);
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
@@ -62,12 +63,12 @@ namespace NHT_Marine_BE.Controllers
         }
 
         [Authorize(Policy = "StaffOnly")]
-        [HttpGet("{typeId:int}")]
-        public async Task<IActionResult> GetDamageTypeById([FromRoute] int typeId)
+        [HttpGet("{serviceId:int}")]
+        public async Task<IActionResult> GetDeliveryServiceById([FromRoute] int serviceId)
         {
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _damageTypeService.GetDamageTypeById(typeId, int.Parse(authRoleId!));
+            var result = await _deliveryServiceService.GetDeliveryServiceById(serviceId, int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
@@ -78,7 +79,7 @@ namespace NHT_Marine_BE.Controllers
 
         [Authorize(Policy = "StaffOnly")]
         [HttpPost]
-        public async Task<IActionResult> AddNewDamageType([FromBody] CreateUpdateDamageTypeDto createDamageTypeDto)
+        public async Task<IActionResult> AddNewDeliveryService([FromBody] CreateUpdateDeliveryServiceDto createDeliveryServiceDto)
         {
             if (!ModelState.IsValid)
             {
@@ -90,7 +91,7 @@ namespace NHT_Marine_BE.Controllers
 
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _damageTypeService.AddNewDamageType(createDamageTypeDto, int.Parse(authRoleId!));
+            var result = await _deliveryServiceService.AddNewDeliveryService(createDeliveryServiceDto, int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
@@ -100,8 +101,11 @@ namespace NHT_Marine_BE.Controllers
         }
 
         [Authorize(Policy = "StaffOnly")]
-        [HttpPatch("{typeId:int}")]
-        public async Task<IActionResult> UpdateDamageType([FromRoute] int typeId, [FromBody] CreateUpdateDamageTypeDto updateDamageTypeDto)
+        [HttpPatch("{serviceId:int}")]
+        public async Task<IActionResult> UpdateDeliveryService(
+            [FromRoute] int serviceId,
+            [FromBody] CreateUpdateDeliveryServiceDto updateDeliveryServiceDto
+        )
         {
             if (!ModelState.IsValid)
             {
@@ -113,7 +117,7 @@ namespace NHT_Marine_BE.Controllers
 
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _damageTypeService.UpdateDamageType(updateDamageTypeDto, typeId, int.Parse(authRoleId!));
+            var result = await _deliveryServiceService.UpdateDeliveryService(updateDeliveryServiceDto, serviceId, int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
@@ -123,12 +127,12 @@ namespace NHT_Marine_BE.Controllers
         }
 
         [Authorize(Policy = "StaffOnly")]
-        [HttpDelete("{typeId:int}")]
-        public async Task<IActionResult> RemoveDamageType([FromRoute] int typeId)
+        [HttpDelete("{serviceId:int}")]
+        public async Task<IActionResult> RemoveDeliveryService([FromRoute] int serviceId)
         {
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _damageTypeService.RemoveDamageType(typeId, int.Parse(authRoleId!));
+            var result = await _deliveryServiceService.RemoveDeliveryService(serviceId, int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });

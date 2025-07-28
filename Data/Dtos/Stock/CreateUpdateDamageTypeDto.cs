@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace NHT_Marine_BE.Data.Dtos.Auth
+namespace NHT_Marine_BE.Data.Dtos.Stock
 {
     public class CreateUpdateDamageTypeDto
     {

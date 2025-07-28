@@ -1,29 +1,28 @@
+using NHT_Marine_BE.Data.Dtos.Order;
 using NHT_Marine_BE.Data.Dtos.Response;
-using NHT_Marine_BE.Data.Dtos.Stock;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Enums;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Interfaces.Services;
-using NHT_Marine_BE.Models.Stock;
-using NHT_Marine_BE.Models.User;
+using NHT_Marine_BE.Models.Transaction;
 using NHT_Marine_BE.Utilities;
 
 namespace NHT_Marine_BE.Services
 {
-    public class SupplierService : ISupplierService
+    public class DeliveryServiceService : IDeliveryServiceService
     {
-        private readonly ISupplierRepository _supplierRepo;
+        private readonly IDeliveryServiceRepository _deliveryServiceRepo;
         private readonly IRoleRepository _roleRepo;
 
-        public SupplierService(ISupplierRepository supplierRepo, IRoleRepository roleRepo)
+        public DeliveryServiceService(IDeliveryServiceRepository deliveryServiceRepo, IRoleRepository roleRepo)
         {
-            _supplierRepo = supplierRepo;
+            _deliveryServiceRepo = deliveryServiceRepo;
             _roleRepo = roleRepo;
         }
 
         public async Task<ServiceResponse<bool>> VerifyPermission(int authRoleId, string permission)
         {
-            var isVerified = await _supplierRepo.VerifyPermission(authRoleId, permission);
+            var isVerified = await _deliveryServiceRepo.VerifyPermission(authRoleId, permission);
             if (isVerified)
             {
                 return new ServiceResponse<bool>
@@ -44,29 +43,29 @@ namespace NHT_Marine_BE.Services
             }
         }
 
-        public async Task<ServiceResponse<List<Supplier>>> GetAllSuppliers(BaseQueryObject queryObject)
+        public async Task<ServiceResponse<List<DeliveryService>>> GetAllDeliveryServices(BaseQueryObject queryObject)
         {
-            var (suppliers, total) = await _supplierRepo.GetAllSuppliers(queryObject);
+            var (deliveryServices, total) = await _deliveryServiceRepo.GetAllDeliveryServices(queryObject);
 
-            return new ServiceResponse<List<Supplier>>
+            return new ServiceResponse<List<DeliveryService>>
             {
                 Status = ResStatusCode.OK,
                 Success = true,
-                Data = suppliers,
+                Data = deliveryServices,
                 Total = total,
-                Took = suppliers.Count,
+                Took = deliveryServices.Count,
             };
         }
 
-        public async Task<ServiceResponse<Supplier?>> GetSupplierById(int supplierId, int authRoleId)
+        public async Task<ServiceResponse<DeliveryService?>> GetDeliveryServiceById(int deliveryServiceId, int authRoleId)
         {
-            var hasViewSSupplierPermission = await _roleRepo.VerifyPermission(
+            var hasViewDeliveryServicePermission = await _roleRepo.VerifyPermission(
                 authRoleId,
-                Permission.ACCESS_SUPPLIER_DASHBOARD_PAGE.ToString()
+                Permission.ACCESS_DELIVERY_SERVICE_DASHBOARD_PAGE.ToString()
             );
-            if (!hasViewSSupplierPermission && supplierId != authRoleId)
+            if (!hasViewDeliveryServicePermission && deliveryServiceId != authRoleId)
             {
-                return new ServiceResponse<Supplier?>
+                return new ServiceResponse<DeliveryService?>
                 {
                     Status = ResStatusCode.FORBIDDEN,
                     Success = false,
@@ -74,19 +73,22 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            var supplier = await _supplierRepo.GetSupplierById(supplierId);
-            return new ServiceResponse<Supplier?>
+            var deliveryService = await _deliveryServiceRepo.GetDeliveryServiceById(deliveryServiceId);
+            return new ServiceResponse<DeliveryService?>
             {
                 Status = ResStatusCode.OK,
                 Success = true,
-                Data = supplier,
+                Data = deliveryService,
             };
         }
 
-        public async Task<ServiceResponse> AddNewSupplier(CreateUpdateSupplierDto createDto, int authRoleId)
+        public async Task<ServiceResponse> AddNewDeliveryService(CreateUpdateDeliveryServiceDto createDto, int authRoleId)
         {
-            var hasAddSSupplierPermission = await _supplierRepo.VerifyPermission(authRoleId, Permission.ADD_NEW_SUPPLIER.ToString());
-            if (!hasAddSSupplierPermission)
+            var hasAddDeliveryServicePermission = await _roleRepo.VerifyPermission(
+                authRoleId,
+                Permission.ADD_NEW_DELIVERY_SERVICE.ToString()
+            );
+            if (!hasAddDeliveryServicePermission)
             {
                 return new ServiceResponse
                 {
@@ -96,8 +98,8 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            var supplierWithSameName = await _supplierRepo.GetSupplierByName(createDto.Name);
-            if (supplierWithSameName != null)
+            var deliveryServiceWithSameName = await _deliveryServiceRepo.GetDeliveryServiceByName(createDto.Name);
+            if (deliveryServiceWithSameName != null)
             {
                 return new ServiceResponse
                 {
@@ -107,15 +109,13 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            var newSupplier = new Supplier
+            var newDeliveryService = new DeliveryService
             {
                 Name = createDto.Name.CapitalizeAllWords(),
-                Address = createDto.Address,
-                ContactEmail = createDto.ContactEmail,
                 ContactPhone = createDto.ContactPhone,
             };
 
-            await _supplierRepo.AddSupplier(newSupplier);
+            await _deliveryServiceRepo.AddNewDeliveryService(newDeliveryService);
 
             return new ServiceResponse
             {
@@ -125,10 +125,17 @@ namespace NHT_Marine_BE.Services
             };
         }
 
-        public async Task<ServiceResponse> UpdateSupplier(CreateUpdateSupplierDto updateDto, int targetSupplierId, int authRoleId)
+        public async Task<ServiceResponse> UpdateDeliveryService(
+            CreateUpdateDeliveryServiceDto updateDto,
+            int targetDeliveryServiceId,
+            int authRoleId
+        )
         {
-            var hasUpdateSSupplierPermission = await _supplierRepo.VerifyPermission(authRoleId, Permission.UPDATE_SUPPLIER.ToString());
-            if (!hasUpdateSSupplierPermission)
+            var hasUpdateDeliveryServicePermission = await _roleRepo.VerifyPermission(
+                authRoleId,
+                Permission.UPDATE_DELIVERY_SERVICE.ToString()
+            );
+            if (!hasUpdateDeliveryServicePermission)
             {
                 return new ServiceResponse
                 {
@@ -138,8 +145,8 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            var targetSupplier = await _supplierRepo.GetSupplierById(targetSupplierId);
-            if (targetSupplier == null)
+            var targetDeliveryService = await _deliveryServiceRepo.GetDeliveryServiceById(targetDeliveryServiceId);
+            if (targetDeliveryService == null)
             {
                 return new ServiceResponse
                 {
@@ -149,8 +156,8 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            var supplierWithSameName = await _supplierRepo.GetSupplierByName(updateDto.Name);
-            if (supplierWithSameName != null && supplierWithSameName.SupplierId != targetSupplierId)
+            var deliveryServiceWithSameName = await _deliveryServiceRepo.GetDeliveryServiceByName(updateDto.Name);
+            if (deliveryServiceWithSameName != null && deliveryServiceWithSameName.ServiceId != targetDeliveryServiceId)
             {
                 return new ServiceResponse
                 {
@@ -159,12 +166,10 @@ namespace NHT_Marine_BE.Services
                     Message = ErrorMessage.ROLE_EXISTED,
                 };
             }
-            targetSupplier.Name = updateDto.Name.CapitalizeAllWords();
-            targetSupplier.Address = updateDto.Address;
-            targetSupplier.ContactEmail = updateDto.ContactEmail;
-            targetSupplier.ContactPhone = updateDto.ContactPhone;
+            targetDeliveryService.Name = updateDto.Name.CapitalizeAllWords();
+            targetDeliveryService.ContactPhone = updateDto.ContactPhone;
 
-            await _supplierRepo.UpdateSupplier(targetSupplier);
+            await _deliveryServiceRepo.UpdateDeliveryService(targetDeliveryService);
 
             return new ServiceResponse
             {
@@ -174,10 +179,13 @@ namespace NHT_Marine_BE.Services
             };
         }
 
-        public async Task<ServiceResponse> RemoveSupplier(int targetSupplierId, int authRoleId)
+        public async Task<ServiceResponse> RemoveDeliveryService(int targetDeliveryServiceId, int authRoleId)
         {
-            var hasRemoveSSupplierPermission = await _supplierRepo.VerifyPermission(authRoleId, Permission.DELETE_SUPPLIER.ToString());
-            if (!hasRemoveSSupplierPermission)
+            var hasRemoveDeliveryServicePermission = await _deliveryServiceRepo.VerifyPermission(
+                authRoleId,
+                Permission.DELETE_DELIVERY_SERVICE.ToString()
+            );
+            if (!hasRemoveDeliveryServicePermission)
             {
                 return new ServiceResponse
                 {
@@ -187,8 +195,8 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            var targetSupplier = await _supplierRepo.GetSupplierById(targetSupplierId);
-            if (targetSupplier == null)
+            var targetDeliveryService = await _deliveryServiceRepo.GetDeliveryServiceById(targetDeliveryServiceId);
+            if (targetDeliveryService == null)
             {
                 return new ServiceResponse
                 {
@@ -198,8 +206,8 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            var isSSupplierBeingUsed = await _supplierRepo.IsSSupplierBeingUsed(targetSupplierId);
-            if (isSSupplierBeingUsed)
+            var isDeliveryServiceBeingUsed = await _deliveryServiceRepo.IsDeliveryServiceBeingUsed(targetDeliveryServiceId);
+            if (isDeliveryServiceBeingUsed)
             {
                 return new ServiceResponse
                 {
@@ -209,7 +217,7 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            await _supplierRepo.DeleteSupplier(targetSupplier);
+            await _deliveryServiceRepo.RemoveDeliveryService(targetDeliveryService);
 
             return new ServiceResponse
             {

@@ -1,5 +1,5 @@
-using NHT_Marine_BE.Data.Dtos.Auth;
 using NHT_Marine_BE.Data.Dtos.Response;
+using NHT_Marine_BE.Data.Dtos.Stock;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Enums;
 using NHT_Marine_BE.Interfaces.Repositories;
