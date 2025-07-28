@@ -101,7 +101,7 @@ namespace NHT_Marine_BE.Controllers
 
         [Authorize(Policy = "StaffOnly")]
         [HttpPatch("{roleId:int}")]
-        public async Task<IActionResult> UpdateRole([FromRoute] int roleId, [FromBody] CreateUpdateRoleDto UpdateRoleDto)
+        public async Task<IActionResult> UpdateRole([FromRoute] int roleId, [FromBody] CreateUpdateRoleDto updateRoleDto)
         {
             if (!ModelState.IsValid)
             {
@@ -113,7 +113,7 @@ namespace NHT_Marine_BE.Controllers
 
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _roleService.UpdateRole(UpdateRoleDto, roleId, int.Parse(authRoleId!));
+            var result = await _roleService.UpdateRole(updateRoleDto, roleId, int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });

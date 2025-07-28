@@ -59,9 +59,14 @@ namespace NHT_Marine_BE.Extensions.Mappers
                 Promotions =
                     product
                         .Promotions?.Where(pp =>
-                            pp.Promotion != null && pp.Promotion.StartDate <= currentTime && pp.Promotion.EndDate >= currentTime
+                            pp.Promotion != null
+                            && pp.Promotion.StartDate <= currentTime
+                            && pp.Promotion.EndDate >= currentTime
+                            && pp.Promotion.IsActive == true
                         )
                         .Select(pp => pp.Promotion!.ToPromotionDto())
+                        .OrderByDescending(p => p.StartDate)
+                        .ThenByDescending(p => p.CreatedAt)
                         .ToList() ?? new List<PromotionDto>(),
             };
         }

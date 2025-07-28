@@ -137,5 +137,85 @@ namespace NHT_Marine_BE.Repositories
                 .Include(rp => rp.CreatedByStaff)
                 .SingleOrDefaultAsync(rp => rp.RootProductId == productId);
         }
+
+        public async Task<RootProduct?> GetProductByName(string productName)
+        {
+            return await _dbContext
+                .RootProducts.Where(rp => rp.Name == productName)
+                // Include category
+                .Include(rp => rp.Category)
+                // Include variants and options
+                .Include(rp => rp.Variants)
+                .ThenInclude(pv => pv.Options)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateProduct(RootProduct product)
+        {
+            _dbContext.RootProducts.Update(product);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsProductDeletable(int productId)
+        {
+            var hasItemsReferences = await _dbContext
+                .ProductItems.Where(pi => pi.RootProductId == productId)
+                .AnyAsync(pi =>
+                    _dbContext.OrderItems.Any(oi => oi.ProductItemId == pi.ProductItemId)
+                    || _dbContext.ImportItems.Any(ii => ii.ProductItemId == pi.ProductItemId)
+                    || _dbContext.Inventories.Any(i => i.ProductItemId == pi.ProductItemId)
+                    || _dbContext.DamageReportItems.Any(dri => dri.ProductItemId == pi.ProductItemId)
+                );
+
+            var hasPromotions = await _dbContext.ProductsPromotions.AnyAsync(pp => pp.ProductId == productId);
+
+            return !hasItemsReferences && !hasPromotions;
+        }
+
+        public async Task DeleteProductById(int productId)
+        {
+            var rootProduct = await _dbContext
+                .RootProducts
+                // Include variants and options
+                .Include(rp => rp.Variants)
+                .ThenInclude(pv => pv.Options)
+                // Include product items and attributes
+                .Include(rp => rp.ProductItems)
+                .ThenInclude(pi => pi.Attributes)
+                // Include product items and cart items
+                .Include(rp => rp.ProductItems)
+                .ThenInclude(pi => pi.CartItems)
+                .SingleOrDefaultAsync(rp => rp.RootProductId == productId);
+
+            var productItems = rootProduct!.ProductItems;
+            foreach (var item in productItems)
+            {
+                _dbContext.ProductAttributes.RemoveRange(item.Attributes);
+                _dbContext.CartItems.RemoveRange(item.CartItems);
+            }
+
+            _dbContext.ProductItems.RemoveRange(productItems);
+
+            foreach (var variant in rootProduct.Variants)
+            {
+                _dbContext.VariantOptions.RemoveRange(variant.Options);
+            }
+
+            _dbContext.ProductVariants.RemoveRange(rootProduct.Variants);
+            _dbContext.RootProducts.Remove(rootProduct);
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<ProductItem?> GetProductItemById(int productItemId)
+        {
+            return await _dbContext.ProductItems.SingleOrDefaultAsync(pi => pi.ProductItemId == productItemId);
+        }
+
+        public async Task UpdateProductItem(ProductItem productItem)
+        {
+            _dbContext.ProductItems.Update(productItem);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

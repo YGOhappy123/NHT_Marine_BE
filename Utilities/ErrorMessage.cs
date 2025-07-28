@@ -24,5 +24,12 @@ namespace NHT_Marine_BE.Utilities
         // Application related
         public const string DATA_VALIDATION_FAILED = "DATA_VALIDATION_FAILED";
         public const string INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
+
+        // Products related
+        public const string PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
+        public const string PRODUCT_EXISTED = "PRODUCT_EXISTED";
+        public const string PRODUCT_ITEM_NOT_FOUND = "PRODUCT_ITEM_NOT_FOUND";
+        public const string PRODUCT_IDS_MISMATCH = "PRODUCT_IDS_MISMATCH";
+        public const string PRODUCT_BEING_USED = "PRODUCT_BEING_USED";
     }
 }

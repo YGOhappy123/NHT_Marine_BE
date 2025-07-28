@@ -55,7 +55,7 @@ namespace NHT_Marine_BE.Repositories
 
         public async Task<(List<Category>, int)> GetAllCategories(BaseQueryObject queryObject)
         {
-            var query = _dbContext.Categories.Include(c => c.ParentCategory).AsQueryable();
+            var query = _dbContext.Categories.Include(c => c.ParentCategory).Include(c => c.CreatedByStaff).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(queryObject.Filter))
             {
