@@ -62,7 +62,7 @@ namespace NHT_Marine_BE.Services
         {
             var hasViewSSupplierPermission = await _roleRepo.VerifyPermission(
                 authRoleId,
-                Permission.ACCESS_STORAGE_DASHBOARD_PAGE.ToString()
+                Permission.ACCESS_SUPPLIER_DASHBOARD_PAGE.ToString()
             );
             if (!hasViewSSupplierPermission && supplierId != authRoleId)
             {
