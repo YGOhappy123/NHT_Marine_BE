@@ -47,10 +47,120 @@ namespace NHT_Marine_BE.Services
             };
         }
 
+        public async Task<ServiceResponse> AddNewProduct(CreateProductDto createDto, int authUserId, int authRoleId)
+        {
+            var hasAddProductPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.ADD_NEW_PRODUCT.ToString());
+            if (!hasAddProductPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var productWithSameName = await _productRepo.GetProductByName(createDto.Name);
+            if (productWithSameName != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.PRODUCT_EXISTED,
+                };
+            }
+
+            var newProduct = new RootProduct
+            {
+                Name = createDto.Name.CapitalizeAllWords(),
+                Description = createDto.Description,
+                CategoryId = createDto.CategoryId,
+                ImageUrl = createDto.ImageUrl,
+                CreatedBy = authUserId,
+                Variants = [],
+                ProductItems = [],
+            };
+
+            var variantOptionMap = new List<List<VariantOption>>();
+
+            foreach (var variantDto in createDto.Variants)
+            {
+                var variant = new ProductVariant
+                {
+                    Name = variantDto.Name.CapitalizeAllWords(),
+                    IsAdjustable = variantDto.IsAdjustable,
+                    Options = [],
+                };
+
+                var localOptionList = new List<VariantOption>();
+
+                foreach (var optionValue in variantDto.Options)
+                {
+                    var option = new VariantOption { Value = optionValue.CapitalizeAllWords() };
+
+                    variant.Options.Add(option);
+                    localOptionList.Add(option);
+                }
+
+                newProduct.Variants.Add(variant);
+                variantOptionMap.Add(localOptionList);
+            }
+
+            foreach (var itemDto in createDto.ProductItems)
+            {
+                if (itemDto.Attributes.Count != createDto.Variants.Count)
+                {
+                    return new ServiceResponse
+                    {
+                        Status = ResStatusCode.UNPROCESSABLE_ENTITY,
+                        Success = false,
+                        Message = ErrorMessage.DATA_VALIDATION_FAILED,
+                    };
+                }
+
+                var item = new ProductItem
+                {
+                    Price = itemDto.Price,
+                    ImageUrl = itemDto.ImageUrl,
+                    PackingGuide = itemDto.PackingGuide,
+                    Attributes = [],
+                };
+
+                for (int i = 0; i < itemDto.Attributes.Count; i++)
+                {
+                    int optionIndex = itemDto.Attributes[i];
+
+                    if (optionIndex < 0 || optionIndex >= variantOptionMap[i].Count)
+                    {
+                        return new ServiceResponse
+                        {
+                            Status = ResStatusCode.UNPROCESSABLE_ENTITY,
+                            Success = false,
+                            Message = ErrorMessage.DATA_VALIDATION_FAILED,
+                        };
+                    }
+
+                    item.Attributes.Add(new ProductAttribute { Option = variantOptionMap[i][optionIndex] });
+                }
+
+                newProduct.ProductItems.Add(item);
+            }
+
+            await _productRepo.AddProduct(newProduct);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.CREATED,
+                Success = true,
+                Message = SuccessMessage.CREATE_PRODUCT_SUCCESSFULLY,
+            };
+        }
+
         public async Task<ServiceResponse> UpdateProductInfo(UpdateProductInfoDto updateDto, int targetProductId, int authRoleId)
         {
-            var hasAddRolePermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_PRODUCT_INFORMATION.ToString());
-            if (!hasAddRolePermission)
+            var hasUpdateInfoPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_PRODUCT_INFORMATION.ToString());
+            if (!hasUpdateInfoPermission)
             {
                 return new ServiceResponse
                 {
@@ -88,6 +198,7 @@ namespace NHT_Marine_BE.Services
             targetProduct.ImageUrl = updateDto.ImageUrl;
 
             await _productRepo.UpdateProduct(targetProduct);
+
             return new ServiceResponse
             {
                 Status = ResStatusCode.OK,
@@ -98,8 +209,8 @@ namespace NHT_Marine_BE.Services
 
         public async Task<ServiceResponse> UpdateProductItems(UpdateProductItemsDto updateDto, int targetProductId, int authRoleId)
         {
-            var hasAddRolePermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_PRODUCT_PRICE.ToString());
-            if (!hasAddRolePermission)
+            var hasUpdateItemsPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_PRODUCT_PRICE.ToString());
+            if (!hasUpdateItemsPermission)
             {
                 return new ServiceResponse
                 {
@@ -149,8 +260,8 @@ namespace NHT_Marine_BE.Services
 
         public async Task<ServiceResponse> DeleteProduct(int targetProductId, int authRoleId)
         {
-            var hasAddRolePermission = await _roleRepo.VerifyPermission(authRoleId, Permission.DELETE_PRODUCT.ToString());
-            if (!hasAddRolePermission)
+            var hasDeleteProductPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.DELETE_PRODUCT.ToString());
+            if (!hasDeleteProductPermission)
             {
                 return new ServiceResponse
                 {
