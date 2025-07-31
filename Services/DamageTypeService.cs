@@ -118,7 +118,7 @@ namespace NHT_Marine_BE.Services
             {
                 Status = ResStatusCode.CREATED,
                 Success = true,
-                Message = SuccessMessage.CREATE_ROLE_SUCCESSFULLY,
+                Message = SuccessMessage.CREATE_DAMAGE_TYPE_SUCCESSFULLY,
             };
         }
 
@@ -167,7 +167,7 @@ namespace NHT_Marine_BE.Services
             {
                 Status = ResStatusCode.OK,
                 Success = true,
-                Message = SuccessMessage.UPDATE_ROLE_SUCCESSFULLY,
+                Message = SuccessMessage.UPDATE_DAMAGE_TYPE_SUCCESSFULLY,
             };
         }
 
@@ -215,7 +215,7 @@ namespace NHT_Marine_BE.Services
             {
                 Status = ResStatusCode.OK,
                 Success = true,
-                Message = SuccessMessage.DELETE_ROLE_SUCCESSFULLY,
+                Message = SuccessMessage.DELETE_DAMAGE_TYPE_SUCCESSFULLY,
             };
         }
     }
