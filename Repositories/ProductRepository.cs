@@ -156,6 +156,12 @@ namespace NHT_Marine_BE.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task AddProduct(RootProduct product)
+        {
+            _dbContext.RootProducts.Add(product);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<bool> IsProductDeletable(int productId)
         {
             var hasItemsReferences = await _dbContext

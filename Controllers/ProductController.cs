@@ -54,8 +54,8 @@ namespace NHT_Marine_BE.Controllers
         }
 
         [Authorize(Policy = "StaffOnly")]
-        [HttpPatch("{productId:int}/info")]
-        public async Task<IActionResult> UpdateProductInfo([FromRoute] int productId, [FromBody] UpdateProductInfoDto updateProductInfoDto)
+        [HttpPost]
+        public async Task<IActionResult> AddNewProduct([FromBody] CreateProductDto createProductDto)
         {
             if (!ModelState.IsValid)
             {
@@ -65,9 +65,10 @@ namespace NHT_Marine_BE.Controllers
                 );
             }
 
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _productService.UpdateProductInfo(updateProductInfoDto, productId, int.Parse(authRoleId!));
+            var result = await _productService.AddNewProduct(createProductDto, int.Parse(authUserId!), int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });

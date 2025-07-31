@@ -8,6 +8,7 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task<(List<RootProduct>, int)> GetAllProducts(BaseQueryObject queryObject);
         Task<RootProduct?> GetProductById(int productId);
         Task<RootProduct?> GetProductByName(string productName);
+        Task AddProduct(RootProduct product);
         Task UpdateProduct(RootProduct product);
         Task<bool> IsProductDeletable(int productId);
         Task DeleteProductById(int productId);

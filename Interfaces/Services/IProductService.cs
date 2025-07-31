@@ -9,6 +9,7 @@ namespace NHT_Marine_BE.Interfaces.Services
     {
         Task<ServiceResponse<List<RootProduct>>> GetAllProducts(BaseQueryObject queryObject);
         Task<ServiceResponse<RootProduct?>> GetProductDetail(int productId);
+        Task<ServiceResponse> AddNewProduct(CreateProductDto createDto, int authUserId, int authRoleId);
         Task<ServiceResponse> UpdateProductInfo(UpdateProductInfoDto updateDto, int targetProductId, int authRoleId);
         Task<ServiceResponse> UpdateProductItems(UpdateProductItemsDto updateDto, int targetProductId, int authRoleId);
         Task<ServiceResponse> DeleteProduct(int targetProductId, int authRoleId);
