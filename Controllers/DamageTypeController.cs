@@ -11,7 +11,7 @@ using NHT_Marine_BE.Utilities;
 namespace NHT_Marine_BE.Controllers
 {
     [ApiController]
-    [Route("/damagetypes")]
+    [Route("/damage-types")]
     public class DamageTypeController : ControllerBase
     {
         private readonly IDamageTypeService _damageTypeService;

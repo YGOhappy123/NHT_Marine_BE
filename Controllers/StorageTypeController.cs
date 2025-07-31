@@ -11,7 +11,7 @@ using NHT_Marine_BE.Utilities;
 namespace NHT_Marine_BE.Controllers
 {
     [ApiController]
-    [Route("/storagetypes")]
+    [Route("/storage-types")]
     public class StorageTypeController : ControllerBase
     {
         private readonly IStorageTypeService _storageTypeService;
