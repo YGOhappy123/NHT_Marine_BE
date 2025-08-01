@@ -71,6 +71,7 @@ namespace NHT_Marine_BE.Services
             }
 
             var role = await _roleRepo.GetRoleById(roleId);
+
             return new ServiceResponse<StaffRole?>
             {
                 Status = ResStatusCode.OK,

@@ -31,5 +31,10 @@ namespace NHT_Marine_BE.Utilities
         public const string PRODUCT_ITEM_NOT_FOUND = "PRODUCT_ITEM_NOT_FOUND";
         public const string PRODUCT_IDS_MISMATCH = "PRODUCT_IDS_MISMATCH";
         public const string PRODUCT_BEING_USED = "PRODUCT_BEING_USED";
+
+        // Orders and carts related
+        public const string QUANTITY_EXCEED_CURRENT_STOCK = "QUANTITY_EXCEED_CURRENT_STOCK";
+        public const string CART_NOT_FOUND = "CART_NOT_FOUND";
+        public const string CART_ITEM_NOT_FOUND = "CART_ITEM_NOT_FOUND";
     }
 }

@@ -21,7 +21,7 @@ namespace NHT_Marine_BE.Controllers
 
         [Authorize(Policy = "StaffOnly")]
         [HttpPatch("{staffId:int}")]
-        public async Task<IActionResult> UpdateStaffProfile([FromRoute] int staffId, [FromBody] UpdateStaffDto updateStaffDto)
+        public async Task<IActionResult> UpdateStaffProfile([FromRoute] int staffId, [FromBody] UpdateUserDto updateStaffDto)
         {
             if (!ModelState.IsValid)
             {

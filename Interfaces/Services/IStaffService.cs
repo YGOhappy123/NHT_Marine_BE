@@ -5,6 +5,6 @@ namespace NHT_Marine_BE.Interfaces.Services
 {
     public interface IStaffService
     {
-        Task<ServiceResponse> UpdateStaffProfile(UpdateStaffDto updateDto, int targetStaffId, int authUserId, int authRoleId);
+        Task<ServiceResponse> UpdateStaffProfile(UpdateUserDto updateDto, int targetStaffId, int authUserId, int authRoleId);
     }
 }

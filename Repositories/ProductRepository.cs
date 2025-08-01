@@ -218,6 +218,11 @@ namespace NHT_Marine_BE.Repositories
             return await _dbContext.ProductItems.SingleOrDefaultAsync(pi => pi.ProductItemId == productItemId);
         }
 
+        public async Task<int> GetProductItemCurrentStock(int productItemId)
+        {
+            return await _dbContext.Inventories.Where(i => i.ProductItemId == productItemId).SumAsync(i => i.Quantity);
+        }
+
         public async Task UpdateProductItem(ProductItem productItem)
         {
             _dbContext.ProductItems.Update(productItem);
