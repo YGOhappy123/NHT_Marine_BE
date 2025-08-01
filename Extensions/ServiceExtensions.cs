@@ -77,14 +77,19 @@ namespace NHT_Marine_BE.Extensions
                 options.AddPolicy(
                     "StaffOnly",
                     policy =>
-                        policy.RequireAssertion(context =>
-                            context.User.HasClaim(c => c.Type == ClaimTypes.Role && !string.IsNullOrEmpty(c.Value))
-                        )
+                        policy
+                            .RequireAuthenticatedUser()
+                            .RequireAssertion(context =>
+                                context.User.HasClaim(c => c.Type == ClaimTypes.Role && !string.IsNullOrEmpty(c.Value))
+                            )
                 );
 
                 options.AddPolicy(
                     "CustomerOnly",
-                    policy => policy.RequireAssertion(context => !context.User.HasClaim(c => c.Type == ClaimTypes.Role))
+                    policy =>
+                        policy
+                            .RequireAuthenticatedUser()
+                            .RequireAssertion(context => !context.User.HasClaim(c => c.Type == ClaimTypes.Role))
                 );
             });
 
@@ -147,6 +152,7 @@ namespace NHT_Marine_BE.Extensions
             // Repository interfaces
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
@@ -165,6 +171,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IStaffService, StaffService>();
+            services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IDamageTypeService, DamageTypeService>();
             services.AddScoped<IStorageTypeService, StorageTypeService>();

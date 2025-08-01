@@ -13,6 +13,7 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task<bool> IsProductDeletable(int productId);
         Task DeleteProductById(int productId);
         Task<ProductItem?> GetProductItemById(int productItemId);
+        Task<int> GetProductItemCurrentStock(int productItemId);
         Task UpdateProductItem(ProductItem productItem);
     }
 }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NHT_Marine_BE.Data.Dtos.User
 {
-    public class UpdateStaffDto
+    public class UpdateUserDto
     {
         [Required]
         public string FullName { get; set; } = string.Empty;

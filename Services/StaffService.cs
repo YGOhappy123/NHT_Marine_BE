@@ -18,7 +18,7 @@ namespace NHT_Marine_BE.Services
             _roleRepo = roleRepo;
         }
 
-        public async Task<ServiceResponse> UpdateStaffProfile(UpdateStaffDto updateDto, int targetStaffId, int authUserId, int authRoleId)
+        public async Task<ServiceResponse> UpdateStaffProfile(UpdateUserDto updateDto, int targetStaffId, int authUserId, int authRoleId)
         {
             var hasUpdateStaffPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_STAFF_INFORMATION.ToString());
             var hasUpdatePersonalPermission =

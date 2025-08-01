@@ -29,6 +29,11 @@ namespace NHT_Marine_BE.Utilities
         public const string UPDATE_PRODUCT_SUCCESSFULLY = "UPDATE_PRODUCT_SUCCESSFULLY";
         public const string DELETE_PRODUCT_SUCCESSFULLY = "DELETE_PRODUCT_SUCCESSFULLY";
 
+        // Orders and carts related
+        public const string ADD_TO_CART_SUCCESSFULLY = "ADD_TO_CART_SUCCESSFULLY";
+        public const string UPDATE_CART_SUCCESSFULLY = "UPDATE_CART_SUCCESSFULLY";
+        public const string RESET_CART_SUCCESSFULLY = "RESET_CART_SUCCESSFULLY";
+
         // Stock related
         public const string CREATE_DAMAGE_TYPE_SUCCESSFULLY = "CREATE_DAMAGE_TYPE_SUCCESSFULLY";
         public const string UPDATE_DAMAGE_TYPE_SUCCESSFULLY = "UPDATE_DAMAGE_TYPE_SUCCESSFULLY";
