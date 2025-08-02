@@ -99,6 +99,11 @@ namespace NHT_Marine_BE.Repositories
             return await _dbContext.DeliveryServices.Where(s => s.Name == serviceName).SingleOrDefaultAsync();
         }
 
+        public async Task<DeliveryService?> GetDeliveryServiceByContactPhone(string contactPhone)
+        {
+            return await _dbContext.DeliveryServices.Where(s => s.ContactPhone == contactPhone).SingleOrDefaultAsync();
+        }
+
         public async Task<bool> IsDeliveryServiceBeingUsed(int serviceId)
         {
             return await _dbContext.OrderDeliveries.AnyAsync(sto => sto.DeliveryServiceId == serviceId);

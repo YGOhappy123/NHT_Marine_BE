@@ -85,9 +85,9 @@ namespace NHT_Marine_BE.Repositories
             if (queryObject.Limit.HasValue)
                 query = query.Take(queryObject.Limit.Value);
 
-            var roles = await query.ToListAsync();
+            var suppliers = await query.ToListAsync();
 
-            return (roles, total);
+            return (suppliers, total);
         }
 
         public async Task<Supplier?> GetSupplierById(int supplierId)
@@ -100,7 +100,22 @@ namespace NHT_Marine_BE.Repositories
             return await _dbContext.Suppliers.Where(s => s.Name == supplierName).SingleOrDefaultAsync();
         }
 
-        public async Task<bool> IsSSupplierBeingUsed(int supplierId)
+        public async Task<Supplier?> GetSupplierByAddress(string address)
+        {
+            return await _dbContext.Suppliers.Where(s => s.Address == address).SingleOrDefaultAsync();
+        }
+
+        public async Task<Supplier?> GetSupplierByContactEmail(string contactEmail)
+        {
+            return await _dbContext.Suppliers.Where(s => s.ContactEmail == contactEmail).SingleOrDefaultAsync();
+        }
+
+        public async Task<Supplier?> GetSupplierByContactPhone(string contactPhone)
+        {
+            return await _dbContext.Suppliers.Where(s => s.ContactPhone == contactPhone).SingleOrDefaultAsync();
+        }
+
+        public async Task<bool> IsSupplierBeingUsed(int supplierId)
         {
             return await _dbContext.ProductImports.AnyAsync(sto => sto.SupplierId == supplierId);
         }

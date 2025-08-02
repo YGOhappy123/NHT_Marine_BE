@@ -103,7 +103,40 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.CONFLICT,
                     Success = false,
-                    Message = ErrorMessage.ROLE_EXISTED,
+                    Message = ErrorMessage.SUPPLIER_EXISTED,
+                };
+            }
+
+            var supplierWithSameAddress = await _supplierRepo.GetSupplierByAddress(createDto.Address);
+            if (supplierWithSameAddress != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.SUPPLIER_ADDRESS_EXISTED,
+                };
+            }
+
+            var supplierWithSameEmail = await _supplierRepo.GetSupplierByContactEmail(createDto.ContactEmail);
+            if (supplierWithSameEmail != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.SUPPLIER_CONTACT_EMAIL_EXISTED,
+                };
+            }
+
+            var supplierWithSamePhone = await _supplierRepo.GetSupplierByContactPhone(createDto.ContactPhone);
+            if (supplierWithSamePhone != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.SUPPLIER_CONTACT_PHONE_EXISTED,
                 };
             }
 
@@ -145,7 +178,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.NOT_FOUND,
                     Success = false,
-                    Message = ErrorMessage.ROLE_NOT_FOUND,
+                    Message = ErrorMessage.SUPPLIER_NOT_FOUND,
                 };
             }
 
@@ -156,9 +189,43 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.CONFLICT,
                     Success = false,
-                    Message = ErrorMessage.ROLE_EXISTED,
+                    Message = ErrorMessage.SUPPLIER_EXISTED,
                 };
             }
+
+            var supplierWithSameAddress = await _supplierRepo.GetSupplierByAddress(updateDto.Address);
+            if (supplierWithSameAddress != null && supplierWithSameAddress.SupplierId != targetSupplierId)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.SUPPLIER_ADDRESS_EXISTED,
+                };
+            }
+
+            var supplierWithSameEmail = await _supplierRepo.GetSupplierByContactEmail(updateDto.ContactEmail);
+            if (supplierWithSameEmail != null && supplierWithSameEmail.SupplierId != targetSupplierId)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.SUPPLIER_CONTACT_EMAIL_EXISTED,
+                };
+            }
+
+            var supplierWithSamePhone = await _supplierRepo.GetSupplierByContactPhone(updateDto.ContactPhone);
+            if (supplierWithSamePhone != null && supplierWithSamePhone.SupplierId != targetSupplierId)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.SUPPLIER_CONTACT_PHONE_EXISTED,
+                };
+            }
+
             targetSupplier.Name = updateDto.Name.CapitalizeAllWords();
             targetSupplier.Address = updateDto.Address;
             targetSupplier.ContactEmail = updateDto.ContactEmail;
@@ -194,18 +261,18 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.NOT_FOUND,
                     Success = false,
-                    Message = ErrorMessage.ROLE_NOT_FOUND,
+                    Message = ErrorMessage.SUPPLIER_NOT_FOUND,
                 };
             }
 
-            var isSSupplierBeingUsed = await _supplierRepo.IsSSupplierBeingUsed(targetSupplierId);
-            if (isSSupplierBeingUsed)
+            var isSupplierBeingUsed = await _supplierRepo.IsSupplierBeingUsed(targetSupplierId);
+            if (isSupplierBeingUsed)
             {
                 return new ServiceResponse
                 {
                     Status = ResStatusCode.BAD_REQUEST,
                     Success = false,
-                    Message = ErrorMessage.ROLE_BEING_USED,
+                    Message = ErrorMessage.SUPPLIER_BEING_USED,
                 };
             }
 

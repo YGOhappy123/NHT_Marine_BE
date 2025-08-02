@@ -13,5 +13,6 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task AddNewDeliveryService(DeliveryService deliveryService);
         Task UpdateDeliveryService(DeliveryService deliveryService);
         Task RemoveDeliveryService(DeliveryService deliveryService);
+        Task<DeliveryService?> GetDeliveryServiceByContactPhone(string contactPhone);
     }
 }

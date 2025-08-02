@@ -13,5 +13,6 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task AddNewOrderStatus(OrderStatus orderStatus);
         Task UpdateOrderStatus(OrderStatus orderStatus);
         Task RemoveOrderStatus(OrderStatus orderStatus);
+        Task<OrderStatus?> GetDefaultOrderStatus();
     }
 }

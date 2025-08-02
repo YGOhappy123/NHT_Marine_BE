@@ -36,5 +36,28 @@ namespace NHT_Marine_BE.Utilities
         public const string QUANTITY_EXCEED_CURRENT_STOCK = "QUANTITY_EXCEED_CURRENT_STOCK";
         public const string CART_NOT_FOUND = "CART_NOT_FOUND";
         public const string CART_ITEM_NOT_FOUND = "CART_ITEM_NOT_FOUND";
+
+        // Stock related
+        public const string DAMAGE_TYPE_NOT_FOUND = "DAMAGE_TYPE_NOT_FOUND";
+        public const string DAMAGE_TYPE_BEING_USED = "DAMAGE_TYPE_BEING_USED";
+        public const string DAMAGE_TYPE_EXISTED = "DAMAGE_TYPE_EXISTED";
+        public const string STORAGE_TYPE_NOT_FOUND = "STORAGE_TYPE_NOT_FOUND";
+        public const string STORAGE_TYPE_BEING_USED = "STORAGE_TYPE_BEING_USED";
+        public const string STORAGE_TYPE_EXISTED = "STORAGE_TYPE_EXISTED";
+        public const string SUPPLIER_NOT_FOUND = "SUPPLIER_NOT_FOUND";
+        public const string SUPPLIER_BEING_USED = "SUPPLIER_BEING_USED";
+        public const string SUPPLIER_EXISTED = "SUPPLIER_EXISTED";
+        public const string SUPPLIER_ADDRESS_EXISTED = "SUPPLIER_ADDRESS_EXISTED";
+        public const string SUPPLIER_CONTACT_EMAIL_EXISTED = "SUPPLIER_CONTACT_EMAIL_EXISTED";
+        public const string SUPPLIER_CONTACT_PHONE_EXISTED = "SUPPLIER_CONTACT_PHONE_EXISTED";
+
+        // Transactions related
+        public const string DELIVERY_SERVICE_NOT_FOUND = "DELIVERY_SERVICE_NOT_FOUND";
+        public const string DELIVERY_SERVICE_EXISTED = "DELIVERY_SERVICE_EXISTED";
+        public const string DELIVERY_SERVICE_BEING_USED = "DELIVERY_SERVICE_BEING_USED";
+        public const string DELIVERY_CONTACT_PHONE_EXISTED = "DELIVERY_CONTACT_PHONE_EXISTED";
+        public const string ORDER_STATUS_NOT_FOUND = "ORDER_STATUS_NOT_FOUND";
+        public const string ORDER_STATUS_EXISTED = "ORDER_STATUS_EXISTED";
+        public const string ORDER_STATUS_BEING_USED = "ORDER_STATUS_BEING_USED";
     }
 }

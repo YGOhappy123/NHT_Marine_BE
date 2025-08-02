@@ -121,5 +121,10 @@ namespace NHT_Marine_BE.Repositories
             _dbContext.OrderStatuses.Remove(orderStatus);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<OrderStatus?> GetDefaultOrderStatus()
+        {
+            return await _dbContext.OrderStatuses.FirstOrDefaultAsync(os => os.IsDefaultState);
+        }
     }
 }

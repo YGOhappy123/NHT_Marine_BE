@@ -102,7 +102,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.CONFLICT,
                     Success = false,
-                    Message = ErrorMessage.ROLE_EXISTED,
+                    Message = ErrorMessage.ORDER_STATUS_EXISTED,
                 };
             }
 
@@ -145,7 +145,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.NOT_FOUND,
                     Success = false,
-                    Message = ErrorMessage.ROLE_NOT_FOUND,
+                    Message = ErrorMessage.ORDER_STATUS_NOT_FOUND,
                 };
             }
 
@@ -156,9 +156,22 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.CONFLICT,
                     Success = false,
-                    Message = ErrorMessage.ROLE_EXISTED,
+                    Message = ErrorMessage.ORDER_STATUS_EXISTED,
                 };
             }
+
+            // Nếu đang cập nhật IsDefaultState thành true thì cần gỡ cái cũ
+            if (updateDto.IsDefaultState && !targetOrderStatus.IsDefaultState)
+            {
+                // Tìm dòng hiện đang có IsDefaultState = true (khác với dòng đang update)
+                var currentDefault = await _orderStatusRepo.GetDefaultOrderStatus();
+                if (currentDefault != null && currentDefault.StatusId != targetOrderStatusId)
+                {
+                    currentDefault.IsDefaultState = false;
+                    await _orderStatusRepo.UpdateOrderStatus(currentDefault);
+                }
+            }
+
             targetOrderStatus.Name = updateDto.Name.CapitalizeAllWords();
             targetOrderStatus.Description = updateDto.Description ?? string.Empty;
             targetOrderStatus.IsDefaultState = updateDto.IsDefaultState;
@@ -195,7 +208,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.NOT_FOUND,
                     Success = false,
-                    Message = ErrorMessage.ROLE_NOT_FOUND,
+                    Message = ErrorMessage.ORDER_STATUS_NOT_FOUND,
                 };
             }
 
@@ -206,7 +219,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.BAD_REQUEST,
                     Success = false,
-                    Message = ErrorMessage.ROLE_BEING_USED,
+                    Message = ErrorMessage.ORDER_STATUS_BEING_USED,
                 };
             }
 

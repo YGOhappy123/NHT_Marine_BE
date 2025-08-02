@@ -105,7 +105,18 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.CONFLICT,
                     Success = false,
-                    Message = ErrorMessage.ROLE_EXISTED,
+                    Message = ErrorMessage.DELIVERY_SERVICE_EXISTED,
+                };
+            }
+
+            var deliveryServiceWithSamePhone = await _deliveryServiceRepo.GetDeliveryServiceByContactPhone(createDto.ContactPhone);
+            if (deliveryServiceWithSamePhone != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.DELIVERY_CONTACT_PHONE_EXISTED,
                 };
             }
 
@@ -152,7 +163,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.NOT_FOUND,
                     Success = false,
-                    Message = ErrorMessage.ROLE_NOT_FOUND,
+                    Message = ErrorMessage.DELIVERY_SERVICE_NOT_FOUND,
                 };
             }
 
@@ -163,9 +174,21 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.CONFLICT,
                     Success = false,
-                    Message = ErrorMessage.ROLE_EXISTED,
+                    Message = ErrorMessage.DELIVERY_SERVICE_EXISTED,
                 };
             }
+
+            var deliveryServiceWithSamePhone = await _deliveryServiceRepo.GetDeliveryServiceByContactPhone(updateDto.ContactPhone);
+            if (deliveryServiceWithSamePhone != null && deliveryServiceWithSamePhone.ServiceId != targetDeliveryServiceId)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.DELIVERY_CONTACT_PHONE_EXISTED,
+                };
+            }
+
             targetDeliveryService.Name = updateDto.Name.CapitalizeAllWords();
             targetDeliveryService.ContactPhone = updateDto.ContactPhone;
 
@@ -202,7 +225,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.NOT_FOUND,
                     Success = false,
-                    Message = ErrorMessage.ROLE_NOT_FOUND,
+                    Message = ErrorMessage.DELIVERY_SERVICE_NOT_FOUND,
                 };
             }
 
@@ -213,7 +236,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.BAD_REQUEST,
                     Success = false,
-                    Message = ErrorMessage.ROLE_BEING_USED,
+                    Message = ErrorMessage.DELIVERY_SERVICE_BEING_USED,
                 };
             }
 

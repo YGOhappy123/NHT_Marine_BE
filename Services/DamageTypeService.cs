@@ -106,7 +106,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.CONFLICT,
                     Success = false,
-                    Message = ErrorMessage.ROLE_EXISTED,
+                    Message = ErrorMessage.DAMAGE_TYPE_EXISTED,
                 };
             }
 
@@ -145,7 +145,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.NOT_FOUND,
                     Success = false,
-                    Message = ErrorMessage.ROLE_NOT_FOUND,
+                    Message = ErrorMessage.DAMAGE_TYPE_NOT_FOUND,
                 };
             }
 
@@ -156,7 +156,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.CONFLICT,
                     Success = false,
-                    Message = ErrorMessage.ROLE_EXISTED,
+                    Message = ErrorMessage.DAMAGE_TYPE_EXISTED,
                 };
             }
             targetDamageType.Name = updateDto.Name.CapitalizeAllWords();
@@ -194,7 +194,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.NOT_FOUND,
                     Success = false,
-                    Message = ErrorMessage.ROLE_NOT_FOUND,
+                    Message = ErrorMessage.DAMAGE_TYPE_NOT_FOUND,
                 };
             }
 
@@ -205,7 +205,7 @@ namespace NHT_Marine_BE.Services
                 {
                     Status = ResStatusCode.BAD_REQUEST,
                     Success = false,
-                    Message = ErrorMessage.ROLE_BEING_USED,
+                    Message = ErrorMessage.DAMAGE_TYPE_BEING_USED,
                 };
             }
 
