@@ -139,7 +139,6 @@ namespace NHT_Marine_BE.Controllers
             return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
 
-        [Authorize(Policy = "StaffOnly")]
         [HttpGet("categories")]
         public async Task<IActionResult> GetAllCategories([FromQuery] BaseQueryObject queryObject)
         {
