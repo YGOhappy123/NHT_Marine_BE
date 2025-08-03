@@ -10,5 +10,6 @@ namespace NHT_Marine_BE.Data.Dtos.Product
         public int? CreatedBy { get; set; }
         public int? ParentId { get; set; }
         public StaffDto? CreatedByStaff { get; set; }
+        public CategoryDto? ParentCategory { get; set; }
     }
 }

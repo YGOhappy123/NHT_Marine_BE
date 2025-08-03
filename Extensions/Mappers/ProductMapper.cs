@@ -16,6 +16,7 @@ namespace NHT_Marine_BE.Extensions.Mappers
                 CreatedBy = category.CreatedBy,
                 ParentId = category.ParentId,
                 CreatedByStaff = category.CreatedByStaff?.ToStaffDto(),
+                ParentCategory = category.ParentCategory?.ToCategoryDto(),
             };
         }
 

@@ -15,10 +15,12 @@ namespace NHT_Marine_BE.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IRoleService _roleService;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, IRoleService roleService)
         {
             _productService = productService;
+            _roleService = roleService;
         }
 
         [HttpGet]
@@ -118,6 +120,26 @@ namespace NHT_Marine_BE.Controllers
             return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
 
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet("categories/verify-permission")]
+        public async Task<IActionResult> VerifyPermission([FromQuery] string permission)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _roleService.VerifyPermission(int.Parse(authRoleId!), permission);
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
         [HttpGet("categories")]
         public async Task<IActionResult> GetAllCategories([FromQuery] BaseQueryObject queryObject)
         {
@@ -136,6 +158,68 @@ namespace NHT_Marine_BE.Controllers
                     Took = result.Took,
                 }
             );
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost("categories")]
+        public async Task<IActionResult> AddNewCategory([FromBody] CreateCategoryDto createCategoryDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _productService.AddNewCategory(createCategoryDto, int.Parse(authUserId!), int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("categories/{categoryId:int}")]
+        public async Task<IActionResult> UpdateCategory([FromRoute] int categoryId, [FromBody] UpdateCategoryDto updateCategoryDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _productService.UpdateCategory(updateCategoryDto, categoryId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpDelete("categories/{categoryId:int}")]
+        public async Task<IActionResult> DeleteCategory([FromRoute] int categoryId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _productService.DeleteCategory(categoryId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
     }
 }
