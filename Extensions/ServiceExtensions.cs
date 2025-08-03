@@ -168,6 +168,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IStaffService, StaffService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICustomerService, CustomerService>();
 
             return services;
         }

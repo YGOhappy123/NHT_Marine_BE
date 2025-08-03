@@ -24,6 +24,9 @@ namespace NHT_Marine_BE.Utilities
         public const string UPLOAD_IMAGE_SUCCESSFULLY = "UPLOAD_IMAGE_SUCCESSFULLY";
         public const string DELETE_IMAGE_SUCCESSFULLY = "DELETE_IMAGE_SUCCESSFULLY";
 
+        // Customers related
+        public const string DEACTIVATE_CUSTOMER_SUCCESSFULLY = "DEACTIVATE_CUSTOMER_SUCCESSFULLY";
+
         // Categories related
         public const string CREATE_CATEGORY_SUCCESSFULLY = "CREATE_CATEGORY_SUCCESSFULLY";
         public const string UPDATE_CATEGORY_SUCCESSFULLY = "UPDATE_CATEGORY_SUCCESSFULLY";
