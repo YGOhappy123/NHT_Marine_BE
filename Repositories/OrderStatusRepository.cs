@@ -101,7 +101,8 @@ namespace NHT_Marine_BE.Repositories
 
         public async Task<bool> IsOrderStatusBeingUsed(int statusId)
         {
-            return await _dbContext.OrderStatusUpdateLogs.AnyAsync(sto => sto.StatusId == statusId);
+            return await _dbContext.OrderStatusUpdateLogs.AnyAsync(sto => sto.StatusId == statusId)
+                || await _dbContext.Orders.AnyAsync(o => o.OrderStatusId == statusId);
         }
 
         public async Task AddNewOrderStatus(OrderStatus orderStatus)
@@ -118,6 +119,7 @@ namespace NHT_Marine_BE.Repositories
 
         public async Task RemoveOrderStatus(OrderStatus orderStatus)
         {
+            await RemoveStatusTransitionsByStatusId(orderStatus.StatusId);
             _dbContext.OrderStatuses.Remove(orderStatus);
             await _dbContext.SaveChangesAsync();
         }
@@ -125,6 +127,15 @@ namespace NHT_Marine_BE.Repositories
         public async Task<OrderStatus?> GetDefaultOrderStatus()
         {
             return await _dbContext.OrderStatuses.FirstOrDefaultAsync(os => os.IsDefaultState);
+        }
+
+        public async Task RemoveStatusTransitionsByStatusId(int statusId)
+        {
+            var transitions = await _dbContext
+                .StatusTransitions.Where(st => st.FromStatusId == statusId || st.ToStatusId == statusId)
+                .ToListAsync();
+            _dbContext.StatusTransitions.RemoveRange(transitions);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

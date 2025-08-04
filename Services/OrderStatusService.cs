@@ -211,6 +211,15 @@ namespace NHT_Marine_BE.Services
                     Message = ErrorMessage.ORDER_STATUS_NOT_FOUND,
                 };
             }
+            if (targetOrderStatus.IsDefaultState)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.CANNOT_DELETE_DEFAULT_ORDER_STATUS,
+                };
+            }
 
             var isOrderStatusBeingUsed = await _orderStatusRepo.IsOrderStatusBeingUsed(targetOrderStatusId);
             if (isOrderStatusBeingUsed)

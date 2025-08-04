@@ -59,5 +59,6 @@ namespace NHT_Marine_BE.Utilities
         public const string ORDER_STATUS_NOT_FOUND = "ORDER_STATUS_NOT_FOUND";
         public const string ORDER_STATUS_EXISTED = "ORDER_STATUS_EXISTED";
         public const string ORDER_STATUS_BEING_USED = "ORDER_STATUS_BEING_USED";
+        public const string CANNOT_DELETE_DEFAULT_ORDER_STATUS = "CANNOT_DELETE_DEFAULT_ORDER_STATUS";
     }
 }
