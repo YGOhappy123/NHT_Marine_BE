@@ -41,5 +41,8 @@ namespace NHT_Marine_BE.Utilities
         public const string ADD_TO_CART_SUCCESSFULLY = "ADD_TO_CART_SUCCESSFULLY";
         public const string UPDATE_CART_SUCCESSFULLY = "UPDATE_CART_SUCCESSFULLY";
         public const string RESET_CART_SUCCESSFULLY = "RESET_CART_SUCCESSFULLY";
+
+        // Promotions related
+        public const string CREATE_PROMOTION_SUCCESSFULLY = "CREATE_PROMOTION_SUCCESSFULLY";
     }
 }

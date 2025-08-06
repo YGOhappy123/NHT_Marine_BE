@@ -41,5 +41,9 @@ namespace NHT_Marine_BE.Utilities
         public const string QUANTITY_EXCEED_CURRENT_STOCK = "QUANTITY_EXCEED_CURRENT_STOCK";
         public const string CART_NOT_FOUND = "CART_NOT_FOUND";
         public const string CART_ITEM_NOT_FOUND = "CART_ITEM_NOT_FOUND";
+
+        // Promotions related
+        public const string PROMOTION_NOT_FOUND = "PROMOTION_NOT_FOUND";
+        public const string PROMOTION_EXISTED = "PROMOTION_EXISTED";
     }
 }

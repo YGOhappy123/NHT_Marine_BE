@@ -158,6 +158,8 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IPromotionRepository, PromotionRepository>();
+            services.AddScoped<ICouponRepository, CouponRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
@@ -169,6 +171,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IPromotionService, PromotionService>();
 
             return services;
         }
