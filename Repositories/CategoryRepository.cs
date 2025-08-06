@@ -81,5 +81,45 @@ namespace NHT_Marine_BE.Repositories
 
             return (categories, total);
         }
+
+        public async Task<Category?> GetCategoryById(int categoryId)
+        {
+            return await _dbContext
+                .Categories.Include(c => c.ParentCategory)
+                .Include(c => c.CreatedByStaff)
+                .SingleOrDefaultAsync(c => c.CategoryId == categoryId);
+        }
+
+        public async Task<Category?> GetCategoryByName(string categoryName)
+        {
+            return await _dbContext.Categories.Where(c => c.Name == categoryName).Include(c => c.ParentCategory).FirstOrDefaultAsync();
+        }
+
+        public async Task AddCategory(Category category)
+        {
+            _dbContext.Categories.Add(category);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateCategory(Category category)
+        {
+            _dbContext.Categories.Update(category);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsCategoryDeletable(int categoryId)
+        {
+            var hasChildCategories = await _dbContext.Categories.AnyAsync(c => c.ParentId == categoryId);
+
+            var hasProducts = await _dbContext.RootProducts.AnyAsync(rp => rp.CategoryId == categoryId);
+
+            return !hasChildCategories && !hasProducts;
+        }
+
+        public async Task DeleteCategory(Category category)
+        {
+            _dbContext.Categories.Remove(category);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

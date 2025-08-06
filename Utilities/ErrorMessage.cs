@@ -25,6 +25,11 @@ namespace NHT_Marine_BE.Utilities
         public const string DATA_VALIDATION_FAILED = "DATA_VALIDATION_FAILED";
         public const string INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
 
+        // Categories related
+        public const string CATEGORY_NOT_FOUND = "CATEGORY_NOT_FOUND";
+        public const string CATEGORY_EXISTED = "CATEGORY_EXISTED";
+        public const string CATEGORY_BEING_USED = "CATEGORY_BEING_USED";
+
         // Products related
         public const string PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
         public const string PRODUCT_EXISTED = "PRODUCT_EXISTED";
@@ -36,6 +41,10 @@ namespace NHT_Marine_BE.Utilities
         public const string QUANTITY_EXCEED_CURRENT_STOCK = "QUANTITY_EXCEED_CURRENT_STOCK";
         public const string CART_NOT_FOUND = "CART_NOT_FOUND";
         public const string CART_ITEM_NOT_FOUND = "CART_ITEM_NOT_FOUND";
+
+        // Promotions related
+        public const string PROMOTION_NOT_FOUND = "PROMOTION_NOT_FOUND";
+        public const string PROMOTION_EXISTED = "PROMOTION_EXISTED";
 
         // Stock related
         public const string DAMAGE_TYPE_NOT_FOUND = "DAMAGE_TYPE_NOT_FOUND";

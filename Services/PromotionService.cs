@@ -1,0 +1,103 @@
+using NHT_Marine_BE.Data.Dtos.Auth;
+using NHT_Marine_BE.Data.Dtos.Response;
+using NHT_Marine_BE.Data.Queries;
+using NHT_Marine_BE.Enums;
+using NHT_Marine_BE.Interfaces.Repositories;
+using NHT_Marine_BE.Interfaces.Services;
+using NHT_Marine_BE.Models.Product;
+using NHT_Marine_BE.Models.Transaction;
+using NHT_Marine_BE.Utilities;
+
+namespace NHT_Marine_BE.Services
+{
+    public class PromotionService : IPromotionService
+    {
+        private readonly IPromotionRepository _promotionRepo;
+        private readonly ICouponRepository _couponRepo;
+        private readonly IRoleRepository _roleRepo;
+
+        public PromotionService(IPromotionRepository promotionRepo, ICouponRepository couponRepo, IRoleRepository roleRepo)
+        {
+            _promotionRepo = promotionRepo;
+            _couponRepo = couponRepo;
+            _roleRepo = roleRepo;
+        }
+
+        public async Task<ServiceResponse<List<Promotion>>> GetAllPromotions(BaseQueryObject queryObject)
+        {
+            var (promotions, total) = await _promotionRepo.GetAllPromotions(queryObject);
+
+            return new ServiceResponse<List<Promotion>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = promotions,
+                Total = total,
+                Took = promotions.Count,
+            };
+        }
+
+        public async Task<ServiceResponse> AddNewPromotion(CreateUpdatePromotionDto createDto, int authRoleId)
+        {
+            var hasAddPromotionPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.ADD_NEW_PROMOTION.ToString());
+            if (!hasAddPromotionPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var promotionWithSameName = await _promotionRepo.GetPromotionByName(createDto.Name);
+            if (promotionWithSameName != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.PROMOTION_EXISTED,
+                };
+            }
+
+            var newPromotion = new Promotion
+            {
+                Name = createDto.Name.CapitalizeAllWords(),
+                DiscountRate = createDto.DiscountRate,
+                StartDate = createDto.StartDate,
+                EndDate = createDto.EndDate,
+                Products = [],
+                CreatedBy = authRoleId,
+            };
+
+            foreach (var product in createDto.Products.Distinct())
+            {
+                newPromotion.Products.Add(new ProductPromotion { ProductId = product });
+            }
+
+            await _promotionRepo.AddPromotion(newPromotion);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.CREATED,
+                Success = true,
+                Message = SuccessMessage.CREATE_PROMOTION_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse<List<Coupon>>> GetAllCoupons(BaseQueryObject queryObject)
+        {
+            var (coupons, total) = await _couponRepo.GetAllCoupons(queryObject);
+
+            return new ServiceResponse<List<Coupon>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = coupons,
+                Total = total,
+                Took = coupons.Count,
+            };
+        }
+    }
+}

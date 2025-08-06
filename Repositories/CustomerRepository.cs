@@ -76,6 +76,11 @@ namespace NHT_Marine_BE.Repositories
             return await _dbContext.Customers.SingleOrDefaultAsync(c => c.AccountId == accountId);
         }
 
+        public async Task<Customer?> GetCustomerByName(string name)
+        {
+            return await _dbContext.Customers.SingleOrDefaultAsync(c => c.FullName == name);
+        }
+
         public async Task<Customer?> GetCustomerByEmail(string email)
         {
             return await _dbContext

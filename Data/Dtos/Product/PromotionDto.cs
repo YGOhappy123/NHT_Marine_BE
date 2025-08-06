@@ -14,5 +14,6 @@ namespace NHT_Marine_BE.Data.Dtos.Product
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int? CreatedBy { get; set; }
         public StaffDto? CreatedByStaff { get; set; }
+        public List<RootProductDto> Products { get; set; } = [];
     }
 }
