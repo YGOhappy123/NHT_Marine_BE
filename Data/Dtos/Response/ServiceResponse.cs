@@ -8,6 +8,7 @@ namespace NHT_Marine_BE.Data.Dtos.Response
         public string? AccessToken { get; set; }
         public string? RefreshToken { get; set; }
         public string? ImageUrl { get; set; }
+        public int? OrderId { get; set; }
     }
 
     public class ServiceResponse<T> : ServiceResponse

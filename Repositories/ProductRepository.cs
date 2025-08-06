@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NHT_Marine_BE.Data;
+using NHT_Marine_BE.Data.Dtos.Product;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Models.Product;
@@ -43,11 +44,25 @@ namespace NHT_Marine_BE.Repositories
                         case "inStock":
                             if (value == "True" || value == "true" || value == "1")
                             {
-                                query = query.Where(rp => rp.ProductItems.Any(pi => pi.Inventories.Sum(inv => (int?)inv.Quantity) > 0));
+                                query = query.Where(rp =>
+                                    rp.ProductItems.Any(pi =>
+                                        pi.Inventories.Sum(inv => (int?)inv.Quantity)
+                                            - pi.Orders.Where(oi => oi.Order!.OrderStatus!.IsDefaultState == true)
+                                                .Sum(oi => (int?)oi.Quantity)
+                                        > 0
+                                    )
+                                );
                             }
                             else if (value == "False" || value == "false" || value == "0")
                             {
-                                query = query.Where(rp => !rp.ProductItems.Any(pi => pi.Inventories.Sum(inv => (int?)inv.Quantity) > 0));
+                                query = query.Where(rp =>
+                                    !rp.ProductItems.Any(pi =>
+                                        pi.Inventories.Sum(inv => (int?)inv.Quantity)
+                                            - pi.Orders.Where(oi => oi.Order!.OrderStatus!.IsDefaultState == true)
+                                                .Sum(oi => (int?)oi.Quantity)
+                                        > 0
+                                    )
+                                );
                             }
                             break;
                         default:
@@ -111,6 +126,25 @@ namespace NHT_Marine_BE.Repositories
             if (queryObject.Limit.HasValue)
                 query = query.Take(queryObject.Limit.Value);
 
+            var products = await query.ToListAsync();
+
+            return (products, total);
+        }
+
+        public async Task<(List<RootProduct>, int)> SearchProductsByName(string searchTerm)
+        {
+            var query = _dbContext
+                .RootProducts
+                // Include product items, stock and attributes
+                .Include(rp => rp.ProductItems)
+                .ThenInclude(pi => pi.Attributes)
+                .Include(rp => rp.ProductItems)
+                .ThenInclude(pi => pi.Inventories)
+                // Filter by name (ignore Vietnamese diacritic)
+                .Where(rp => EF.Functions.Collate(rp.Name, "Latin1_General_CI_AI").Contains(searchTerm))
+                .AsQueryable();
+
+            var total = await query.CountAsync();
             var products = await query.ToListAsync();
 
             return (products, total);
@@ -213,6 +247,73 @@ namespace NHT_Marine_BE.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<List<Promotion>> GetProductAvailablePromotions(int productId)
+        {
+            var currentTime = TimestampHandler.GetNow();
+
+            return await _dbContext
+                .Promotions.Where(p =>
+                    p.StartDate <= currentTime
+                    && p.EndDate >= currentTime
+                    && p.IsActive == true
+                    && p.Products.Any(pp => pp.ProductId == productId)
+                )
+                .OrderByDescending(p => p.StartDate)
+                .ThenByDescending(p => p.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<(List<DetailedProductItemDto>, int)> GetDetailedProductItems(List<int> productItemIds)
+        {
+            var query = _dbContext
+                .ProductItems.Where(pi => productItemIds.Contains(pi.ProductItemId))
+                .Select(pi => new DetailedProductItemDto
+                {
+                    ProductItemId = pi.ProductItemId,
+                    ImageUrl = pi.ImageUrl,
+                    Price = pi.Price,
+                    Attribute = pi
+                        .Attributes.Select(pa => new PartialAttributeDto { Variant = pa.Option!.Variant!.Name, Option = pa.Option.Value })
+                        .ToList(),
+                    RootProduct = new PartialRootProductDto
+                    {
+                        RootProductId = pi.RootProduct!.RootProductId,
+                        Name = pi.RootProduct.Name,
+                        Description = pi.RootProduct.Description,
+                        ImageUrl = pi.RootProduct.ImageUrl,
+                    },
+                })
+                .AsQueryable();
+
+            var total = await query.CountAsync();
+
+            var productItems = await query.ToListAsync();
+
+            return (productItems, total);
+        }
+
+        public async Task<DetailedProductItemDto?> GetDetailedProductItemById(int productItemId)
+        {
+            return await _dbContext
+                .ProductItems.Select(pi => new DetailedProductItemDto
+                {
+                    ProductItemId = pi.ProductItemId,
+                    ImageUrl = pi.ImageUrl,
+                    Price = pi.Price,
+                    Attribute = pi
+                        .Attributes.Select(pa => new PartialAttributeDto { Variant = pa.Option!.Variant!.Name, Option = pa.Option.Value })
+                        .ToList(),
+                    RootProduct = new PartialRootProductDto
+                    {
+                        RootProductId = pi.RootProduct!.RootProductId,
+                        Name = pi.RootProduct.Name,
+                        Description = pi.RootProduct.Description,
+                        ImageUrl = pi.RootProduct.ImageUrl,
+                    },
+                })
+                .SingleOrDefaultAsync(pi => pi.ProductItemId == productItemId);
+        }
+
         public async Task<ProductItem?> GetProductItemById(int productItemId)
         {
             return await _dbContext.ProductItems.SingleOrDefaultAsync(pi => pi.ProductItemId == productItemId);
@@ -220,7 +321,12 @@ namespace NHT_Marine_BE.Repositories
 
         public async Task<int> GetProductItemCurrentStock(int productItemId)
         {
-            return await _dbContext.Inventories.Where(i => i.ProductItemId == productItemId).SumAsync(i => i.Quantity);
+            var totalInventories = await _dbContext.Inventories.Where(i => i.ProductItemId == productItemId).SumAsync(i => i.Quantity);
+            var totalPendingItems = await _dbContext
+                .OrderItems.Where(oi => oi.Order!.OrderStatus!.IsDefaultState == true && oi.ProductItemId == productItemId)
+                .SumAsync(oi => oi.Quantity);
+
+            return totalInventories - totalPendingItems;
         }
 
         public async Task UpdateProductItem(ProductItem productItem)

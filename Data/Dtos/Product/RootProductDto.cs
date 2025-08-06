@@ -16,6 +16,7 @@ namespace NHT_Marine_BE.Data.Dtos.Product
         public List<ProductVariantDto>? Variants { get; set; } = [];
         public List<ProductItemDto>? ProductItems { get; set; } = [];
         public List<PromotionDto>? Promotions { get; set; } = [];
+        public decimal? DiscountRate { get; set; }
     }
 
     public class ProductVariantDto

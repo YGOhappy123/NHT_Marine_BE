@@ -53,7 +53,6 @@ namespace NHT_Marine_BE.Extensions.Mappers
                         Price = item.Price,
                         PackingGuide = item.PackingGuide,
                         Attributes = item.Attributes?.Select(attr => new ProductAttributeDto { OptionId = attr.OptionId }).ToList(),
-                        Stock = item.Inventories?.Sum(inventory => inventory.Quantity) ?? 0,
                     })
                     .ToList(),
                 Promotions =

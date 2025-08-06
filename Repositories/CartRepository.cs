@@ -23,6 +23,20 @@ namespace NHT_Marine_BE.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task ConvertActiveCart(int customerId)
+        {
+            var activeCart = await _dbContext
+                .CustomerCarts.Where(cc => cc.CustomerId == customerId && cc.Status == CartStatus.Active)
+                .FirstOrDefaultAsync();
+
+            if (activeCart != null)
+            {
+                activeCart.Status = CartStatus.Converted;
+                _dbContext.CustomerCarts.Update(activeCart);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
         public async Task AddCustomerCart(CustomerCart cart)
         {
             _dbContext.CustomerCarts.Add(cart);

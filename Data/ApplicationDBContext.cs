@@ -61,6 +61,7 @@ namespace NHT_Marine_BE.Data
         {
             // Handle enum conversions
             builder.Entity<CustomerCart>().Property(cc => cc.Status).HasConversion<string>();
+            builder.Entity<Coupon>().Property(c => c.Type).HasConversion<string>();
 
             // Handle foreign keys which are not auto-setup
             builder.Entity<Category>().HasOne(c => c.CreatedByStaff).WithMany().HasForeignKey(c => c.CreatedBy);

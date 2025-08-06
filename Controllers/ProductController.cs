@@ -34,7 +34,7 @@ namespace NHT_Marine_BE.Controllers
                 result.Status,
                 new SuccessResponseDto
                 {
-                    Data = result.Data!.Select(rp => rp.ToRootProductDto()),
+                    Data = result.Data,
                     Total = result.Total,
                     Took = result.Took,
                 }
@@ -50,7 +50,47 @@ namespace NHT_Marine_BE.Controllers
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
             }
 
-            return StatusCode(result.Status, new SuccessResponseDto { Data = result.Data?.ToRootProductDto() });
+            return StatusCode(result.Status, new SuccessResponseDto { Data = result.Data });
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProductsByName([FromQuery] string searchTerm)
+        {
+            var result = await _productService.SearchProductsByName(searchTerm);
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(
+                result.Status,
+                new SuccessResponseDto
+                {
+                    Data = result.Data,
+                    Total = result.Total,
+                    Took = result.Took,
+                }
+            );
+        }
+
+        [HttpGet("detailed-items")]
+        public async Task<IActionResult> SearchProductsByName([FromQuery] List<int> ids)
+        {
+            var result = await _productService.GetDetailedProductItems(ids);
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(
+                result.Status,
+                new SuccessResponseDto
+                {
+                    Data = result.Data,
+                    Total = result.Total,
+                    Took = result.Took,
+                }
+            );
         }
 
         [Authorize(Policy = "StaffOnly")]

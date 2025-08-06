@@ -36,5 +36,12 @@ namespace NHT_Marine_BE.Utilities
         public const string QUANTITY_EXCEED_CURRENT_STOCK = "QUANTITY_EXCEED_CURRENT_STOCK";
         public const string CART_NOT_FOUND = "CART_NOT_FOUND";
         public const string CART_ITEM_NOT_FOUND = "CART_ITEM_NOT_FOUND";
+        public const string ORDER_SYSTEM_TEMPORARILY_UNAVAILABLE = "ORDER_SYSTEM_TEMPORARILY_UNAVAILABLE";
+
+        // Promotion and coupon related
+        public const string COUPON_NOT_FOUND = "COUPON_NOT_FOUND";
+        public const string COUPON_NO_LONGER_AVAILABLE = "COUPON_NO_LONGER_AVAILABLE";
+        public const string COUPON_REACH_MAX_USAGE = "COUPON_REACH_MAX_USAGE";
+        public const string YOU_HAVE_USED_COUPON = "YOU_HAVE_USED_COUPON";
     }
 }

@@ -2,6 +2,7 @@ using NHT_Marine_BE.Data.Dtos.Product;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Enums;
+using NHT_Marine_BE.Extensions.Mappers;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Interfaces.Services;
 using NHT_Marine_BE.Models.Product;
@@ -22,28 +23,109 @@ namespace NHT_Marine_BE.Services
             _roleRepo = roleRepo;
         }
 
-        public async Task<ServiceResponse<List<RootProduct>>> GetAllProducts(BaseQueryObject queryObject)
+        public async Task<ServiceResponse<List<RootProductDto>>> GetAllProducts(BaseQueryObject queryObject)
         {
             var (products, total) = await _productRepo.GetAllProducts(queryObject);
 
-            return new ServiceResponse<List<RootProduct>>
+            var mappedProducts = products.Select(rp => rp.ToRootProductDto()).ToList();
+            foreach (var item in mappedProducts)
+            {
+                foreach (var _item in item.ProductItems ?? [])
+                {
+                    _item.Stock = await _productRepo.GetProductItemCurrentStock(_item.ProductItemId);
+                }
+            }
+
+            return new ServiceResponse<List<RootProductDto>>
             {
                 Status = ResStatusCode.OK,
                 Success = true,
-                Data = products,
+                Data = mappedProducts,
                 Total = total,
                 Took = products.Count,
             };
         }
 
-        public async Task<ServiceResponse<RootProduct?>> GetProductDetail(int productId)
+        public async Task<ServiceResponse<List<RootProductDto>>> SearchProductsByName(string searchTerm)
         {
-            var product = await _productRepo.GetProductById(productId);
-            return new ServiceResponse<RootProduct?>
+            var (products, total) = await _productRepo.SearchProductsByName(searchTerm);
+
+            var mappedProducts = products.Select(rp => rp.ToRootProductDto()).ToList();
+            foreach (var item in mappedProducts)
+            {
+                item.DiscountRate = await CalculateDiscountRateAsync(item.RootProductId);
+                foreach (var _item in item.ProductItems ?? [])
+                {
+                    _item.Stock = await _productRepo.GetProductItemCurrentStock(_item.ProductItemId);
+                }
+            }
+
+            return new ServiceResponse<List<RootProductDto>>
             {
                 Status = ResStatusCode.OK,
                 Success = true,
-                Data = product,
+                Data = mappedProducts,
+                Total = total,
+                Took = products.Count,
+            };
+        }
+
+        private async Task<int> CalculateDiscountRateAsync(int productId)
+        {
+            var availablePromotions = await _productRepo.GetProductAvailablePromotions(productId);
+            if (availablePromotions != null && availablePromotions.Count > 0)
+            {
+                return availablePromotions[0].DiscountRate;
+            }
+
+            return 0;
+        }
+
+        public async Task<ServiceResponse<List<DetailedProductItemDto>>> GetDetailedProductItems(List<int> productItemIds)
+        {
+            var (productItems, total) = await _productRepo.GetDetailedProductItems(productItemIds);
+
+            foreach (var item in productItems)
+            {
+                item.DiscountRate = await CalculateDiscountRateAsync(item.RootProduct!.RootProductId);
+                item.Stock = await _productRepo.GetProductItemCurrentStock(item.ProductItemId);
+            }
+
+            return new ServiceResponse<List<DetailedProductItemDto>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = productItems,
+                Total = total,
+                Took = productItems.Count,
+            };
+        }
+
+        public async Task<ServiceResponse<RootProductDto?>> GetProductDetail(int productId)
+        {
+            var product = await _productRepo.GetProductById(productId);
+
+            if (product != null)
+            {
+                var mappedProduct = product.ToRootProductDto();
+                foreach (var item in mappedProduct.ProductItems ?? [])
+                {
+                    item.Stock = await _productRepo.GetProductItemCurrentStock(item.ProductItemId);
+                }
+
+                return new ServiceResponse<RootProductDto?>
+                {
+                    Status = ResStatusCode.OK,
+                    Success = true,
+                    Data = mappedProduct,
+                };
+            }
+
+            return new ServiceResponse<RootProductDto?>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = null,
             };
         }
 

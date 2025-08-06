@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using NHT_Marine_BE.Data.Dtos.Auth;
 using NHT_Marine_BE.Data.Dtos.Response;
+using NHT_Marine_BE.Enums;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Interfaces.Services;
 using NHT_Marine_BE.Models.User;
@@ -14,24 +15,27 @@ namespace NHT_Marine_BE.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IAccountRepository _accountRepo;
-        private readonly ICustomerRepository _customerRepo;
         private readonly IStaffRepository _staffRepo;
+        private readonly ICustomerRepository _customerRepo;
+        private readonly ICartRepository _cartRepo;
         private readonly IJwtService _jwtService;
         private readonly IMailerService _mailerService;
 
         public AuthService(
             IConfiguration configuration,
             IAccountRepository accountRepo,
-            ICustomerRepository customerRepo,
             IStaffRepository staffRepo,
+            ICustomerRepository customerRepo,
+            ICartRepository cartRepo,
             IJwtService jwtService,
             IMailerService mailerService
         )
         {
             _configuration = configuration;
             _accountRepo = accountRepo;
-            _customerRepo = customerRepo;
             _staffRepo = staffRepo;
+            _customerRepo = customerRepo;
+            _cartRepo = cartRepo;
             _jwtService = jwtService;
             _mailerService = mailerService;
         }
@@ -373,6 +377,14 @@ namespace NHT_Marine_BE.Services
 
             targetAccount.IsActive = false;
             await _accountRepo.UpdateAccount(targetAccount);
+
+            var activeCart = await _cartRepo.GetCustomerActiveCart(customerId);
+            if (activeCart != null)
+            {
+                activeCart.UpdatedAt = TimestampHandler.GetNow();
+                activeCart.Status = CartStatus.Abandoned;
+                await _cartRepo.UpdateCustomerCart(activeCart);
+            }
 
             return new ServiceResponse
             {
