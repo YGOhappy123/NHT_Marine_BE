@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using NHT_Marine_BE.Data.Dtos.Order;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Dtos.User;
+using NHT_Marine_BE.Data.Queries;
+using NHT_Marine_BE.Extensions.Mappers;
 using NHT_Marine_BE.Interfaces.Services;
 using NHT_Marine_BE.Utilities;
 
@@ -134,6 +136,42 @@ namespace NHT_Marine_BE.Controllers
             var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
 
             var result = await _customerService.ResetCustomerCart(int.Parse(authUserId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllCustomers([FromQuery] BaseQueryObject queryObject)
+        {
+            var result = await _customerService.GetAllCustomers(queryObject);
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(
+                result.Status,
+                new SuccessResponseDto
+                {
+                    Data = result.Data!.Select(rp => rp.ToCustomerDto()),
+                    Total = result.Total,
+                    Took = result.Took,
+                }
+            );
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost("deactivate-account/{customerId:int}")]
+        public async Task<IActionResult> DeactivateCustomerAccount([FromRoute] int customerId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _customerService.DeactivateCustomerAccount(customerId, int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });

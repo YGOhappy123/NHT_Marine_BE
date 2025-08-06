@@ -1,4 +1,5 @@
 using NHT_Marine_BE.Data.Dtos.Auth;
+using NHT_Marine_BE.Models.Product;
 
 namespace NHT_Marine_BE.Data.Dtos.Product
 {
@@ -14,5 +15,6 @@ namespace NHT_Marine_BE.Data.Dtos.Product
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int? CreatedBy { get; set; }
         public StaffDto? CreatedByStaff { get; set; }
+        public List<RootProduct> Products { get; set; } = [];
     }
 }

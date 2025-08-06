@@ -16,5 +16,8 @@ namespace NHT_Marine_BE.Interfaces.Services
         Task<ServiceResponse> UpdateProductItems(UpdateProductItemsDto updateDto, int targetProductId, int authRoleId);
         Task<ServiceResponse> DeleteProduct(int targetProductId, int authRoleId);
         Task<ServiceResponse<List<Category>>> GetAllCategories(BaseQueryObject queryObject);
+        Task<ServiceResponse> AddNewCategory(CreateCategoryDto createDto, int authUserId, int authRoleId);
+        Task<ServiceResponse> UpdateCategory(UpdateCategoryDto updateDto, int targetCategoryId, int authRoleId);
+        Task<ServiceResponse> DeleteCategory(int targetCategoryId, int authRoleId);
     }
 }

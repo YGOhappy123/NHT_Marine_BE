@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Dtos.User;
+using NHT_Marine_BE.Data.Queries;
+using NHT_Marine_BE.Extensions.Mappers;
 using NHT_Marine_BE.Interfaces.Services;
 using NHT_Marine_BE.Utilities;
 
@@ -17,6 +19,27 @@ namespace NHT_Marine_BE.Controllers
         public StaffController(IStaffService staffService)
         {
             _staffService = staffService;
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllStaffs([FromQuery] BaseQueryObject queryObject)
+        {
+            var result = await _staffService.GetAllStaffs(queryObject);
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(
+                result.Status,
+                new SuccessResponseDto
+                {
+                    Data = result.Data!.Select(sr => sr.ToStaffDto()),
+                    Total = result.Total,
+                    Took = result.Took,
+                }
+            );
         }
 
         [Authorize(Policy = "StaffOnly")]

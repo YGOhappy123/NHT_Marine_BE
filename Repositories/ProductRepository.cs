@@ -164,10 +164,6 @@ namespace NHT_Marine_BE.Repositories
                 .ThenInclude(pi => pi.Attributes)
                 .Include(rp => rp.ProductItems)
                 .ThenInclude(pi => pi.Inventories)
-                // Include promotions
-                .Include(rp => rp.Promotions)
-                .ThenInclude(pp => pp.Promotion)
-                // Include creator
                 .Include(rp => rp.CreatedByStaff)
                 .SingleOrDefaultAsync(rp => rp.RootProductId == productId);
         }

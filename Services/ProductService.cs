@@ -81,6 +81,11 @@ namespace NHT_Marine_BE.Services
             return 0;
         }
 
+        private async Task<List<Promotion>> GetAvailablePromotions(int productId)
+        {
+            return await _productRepo.GetProductAvailablePromotions(productId);
+        }
+
         public async Task<ServiceResponse<List<DetailedProductItemDto>>> GetDetailedProductItems(List<int> productItemIds)
         {
             var (productItems, total) = await _productRepo.GetDetailedProductItems(productItemIds);
@@ -107,11 +112,14 @@ namespace NHT_Marine_BE.Services
 
             if (product != null)
             {
+                var promotions = await GetAvailablePromotions(productId);
+
                 var mappedProduct = product.ToRootProductDto();
                 foreach (var item in mappedProduct.ProductItems ?? [])
                 {
                     item.Stock = await _productRepo.GetProductItemCurrentStock(item.ProductItemId);
                 }
+                mappedProduct.Promotions = promotions.Select(p => p.ToPromotionDto()).ToList();
 
                 return new ServiceResponse<RootProductDto?>
                 {
@@ -396,6 +404,140 @@ namespace NHT_Marine_BE.Services
                 Data = categories,
                 Total = total,
                 Took = categories.Count,
+            };
+        }
+
+        public async Task<ServiceResponse> AddNewCategory(CreateCategoryDto createDto, int authUserId, int authRoleId)
+        {
+            var hasAddCategoryPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.ADD_NEW_PRODUCT_CATEGORY.ToString());
+            if (!hasAddCategoryPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var categoryWithSameName = await _categoryRepo.GetCategoryByName(createDto.Name);
+            if (categoryWithSameName != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.CATEGORY_EXISTED,
+                };
+            }
+
+            var newCategory = new Category
+            {
+                Name = createDto.Name.CapitalizeAllWords(),
+                CreatedBy = authUserId,
+                ParentId = createDto.ParentId,
+            };
+
+            await _categoryRepo.AddCategory(newCategory);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.CREATED,
+                Success = true,
+                Message = SuccessMessage.CREATE_CATEGORY_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> UpdateCategory(UpdateCategoryDto updateDto, int targetCategoryId, int authRoleId)
+        {
+            var hasUpdateCategoryPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_PRODUCT_CATEGORY.ToString());
+            if (!hasUpdateCategoryPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetCategory = await _categoryRepo.GetCategoryById(targetCategoryId);
+            if (targetCategory == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.CATEGORY_NOT_FOUND,
+                };
+            }
+
+            var categoryWithSameName = await _categoryRepo.GetCategoryByName(updateDto.Name);
+            if (categoryWithSameName != null && categoryWithSameName.CategoryId != targetCategoryId)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.CATEGORY_EXISTED,
+                };
+            }
+
+            targetCategory.Name = updateDto.Name.Trim().CapitalizeAllWords();
+            targetCategory.ParentId = updateDto.ParentId;
+
+            await _categoryRepo.UpdateCategory(targetCategory);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.UPDATE_CATEGORY_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> DeleteCategory(int targetCategoryId, int authRoleId)
+        {
+            var hasDeleteCategoryPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.DELETE_PRODUCT_CATEGORY.ToString());
+            if (!hasDeleteCategoryPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetCategory = await _categoryRepo.GetCategoryById(targetCategoryId);
+            if (targetCategory == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.CATEGORY_NOT_FOUND,
+                };
+            }
+
+            var isDeletable = await _categoryRepo.IsCategoryDeletable(targetCategoryId);
+            if (!isDeletable)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.CATEGORY_BEING_USED,
+                };
+            }
+
+            await _categoryRepo.DeleteCategory(targetCategory);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.DELETE_CATEGORY_SUCCESSFULLY,
             };
         }
     }

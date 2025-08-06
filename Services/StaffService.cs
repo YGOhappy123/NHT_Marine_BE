@@ -1,8 +1,10 @@
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Dtos.User;
+using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Enums;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Interfaces.Services;
+using NHT_Marine_BE.Models.User;
 using NHT_Marine_BE.Utilities;
 
 namespace NHT_Marine_BE.Services
@@ -16,6 +18,20 @@ namespace NHT_Marine_BE.Services
         {
             _staffRepo = staffRepo;
             _roleRepo = roleRepo;
+        }
+
+        public async Task<ServiceResponse<List<Staff>>> GetAllStaffs(BaseQueryObject queryObject)
+        {
+            var (staffs, total) = await _staffRepo.GetAllStaffs(queryObject);
+
+            return new ServiceResponse<List<Staff>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = staffs,
+                Total = total,
+                Took = staffs.Count,
+            };
         }
 
         public async Task<ServiceResponse> UpdateStaffProfile(UpdateUserDto updateDto, int targetStaffId, int authUserId, int authRoleId)

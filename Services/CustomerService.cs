@@ -1,6 +1,8 @@
+using NHT_Marine_BE.Data.Dtos.Auth;
 using NHT_Marine_BE.Data.Dtos.Order;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Dtos.User;
+using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Enums;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Interfaces.Services;
@@ -14,12 +16,22 @@ namespace NHT_Marine_BE.Services
         private readonly ICustomerRepository _customerRepo;
         private readonly ICartRepository _cartRepo;
         private readonly IProductRepository _productRepo;
+        private readonly IRoleRepository _roleRepo;
+        private readonly IAccountRepository _accountRepo;
 
-        public CustomerService(ICustomerRepository customerRepo, ICartRepository cartRepo, IProductRepository productRepo)
+        public CustomerService(
+            ICustomerRepository customerRepo,
+            ICartRepository cartRepo,
+            IProductRepository productRepo,
+            IRoleRepository roleRepo,
+            IAccountRepository accountRepo
+        )
         {
             _customerRepo = customerRepo;
             _cartRepo = cartRepo;
             _productRepo = productRepo;
+            _roleRepo = roleRepo;
+            _accountRepo = accountRepo;
         }
 
         public async Task<ServiceResponse> UpdateCustomerProfile(UpdateUserDto updateDto, int authUserId)
@@ -283,6 +295,69 @@ namespace NHT_Marine_BE.Services
                 Status = ResStatusCode.OK,
                 Success = true,
                 Message = SuccessMessage.RESET_CART_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse<List<Customer>>> GetAllCustomers(BaseQueryObject queryObject)
+        {
+            var (customers, total) = await _customerRepo.GetAllCustomers(queryObject);
+
+            return new ServiceResponse<List<Customer>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = customers,
+                Total = total,
+                Took = customers.Count,
+            };
+        }
+
+        public async Task<ServiceResponse> DeactivateCustomerAccount(int targetCustomerId, int authRoleId)
+        {
+            var hasDeactivateCustomerPermission = await _roleRepo.VerifyPermission(
+                authRoleId,
+                Permission.DEACTIVATE_CUSTOMER_ACCOUNT.ToString()
+            );
+            if (!hasDeactivateCustomerPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetCustomer = await _customerRepo.GetCustomerById(targetCustomerId);
+            if (targetCustomer == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.USER_NOT_FOUND,
+                };
+            }
+
+            var targetAccount = await _accountRepo.GetAccountByUserId(targetCustomerId, true);
+            if (targetAccount == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.USER_NOT_FOUND,
+                };
+            }
+
+            targetAccount.IsActive = false;
+            await _accountRepo.UpdateAccount(targetAccount);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.DEACTIVATE_CUSTOMER_SUCCESSFULLY,
             };
         }
     }

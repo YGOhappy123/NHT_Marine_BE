@@ -25,6 +25,11 @@ namespace NHT_Marine_BE.Utilities
         public const string DATA_VALIDATION_FAILED = "DATA_VALIDATION_FAILED";
         public const string INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
 
+        // Categories related
+        public const string CATEGORY_NOT_FOUND = "CATEGORY_NOT_FOUND";
+        public const string CATEGORY_EXISTED = "CATEGORY_EXISTED";
+        public const string CATEGORY_BEING_USED = "CATEGORY_BEING_USED";
+
         // Products related
         public const string PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
         public const string PRODUCT_EXISTED = "PRODUCT_EXISTED";
@@ -43,5 +48,31 @@ namespace NHT_Marine_BE.Utilities
         public const string COUPON_NO_LONGER_AVAILABLE = "COUPON_NO_LONGER_AVAILABLE";
         public const string COUPON_REACH_MAX_USAGE = "COUPON_REACH_MAX_USAGE";
         public const string YOU_HAVE_USED_COUPON = "YOU_HAVE_USED_COUPON";
+        public const string PROMOTION_NOT_FOUND = "PROMOTION_NOT_FOUND";
+        public const string PROMOTION_EXISTED = "PROMOTION_EXISTED";
+
+        // Stock related
+        public const string DAMAGE_TYPE_NOT_FOUND = "DAMAGE_TYPE_NOT_FOUND";
+        public const string DAMAGE_TYPE_BEING_USED = "DAMAGE_TYPE_BEING_USED";
+        public const string DAMAGE_TYPE_EXISTED = "DAMAGE_TYPE_EXISTED";
+        public const string STORAGE_TYPE_NOT_FOUND = "STORAGE_TYPE_NOT_FOUND";
+        public const string STORAGE_TYPE_BEING_USED = "STORAGE_TYPE_BEING_USED";
+        public const string STORAGE_TYPE_EXISTED = "STORAGE_TYPE_EXISTED";
+        public const string SUPPLIER_NOT_FOUND = "SUPPLIER_NOT_FOUND";
+        public const string SUPPLIER_BEING_USED = "SUPPLIER_BEING_USED";
+        public const string SUPPLIER_EXISTED = "SUPPLIER_EXISTED";
+        public const string SUPPLIER_ADDRESS_EXISTED = "SUPPLIER_ADDRESS_EXISTED";
+        public const string SUPPLIER_CONTACT_EMAIL_EXISTED = "SUPPLIER_CONTACT_EMAIL_EXISTED";
+        public const string SUPPLIER_CONTACT_PHONE_EXISTED = "SUPPLIER_CONTACT_PHONE_EXISTED";
+
+        // Transactions related
+        public const string DELIVERY_SERVICE_NOT_FOUND = "DELIVERY_SERVICE_NOT_FOUND";
+        public const string DELIVERY_SERVICE_EXISTED = "DELIVERY_SERVICE_EXISTED";
+        public const string DELIVERY_SERVICE_BEING_USED = "DELIVERY_SERVICE_BEING_USED";
+        public const string DELIVERY_CONTACT_PHONE_EXISTED = "DELIVERY_CONTACT_PHONE_EXISTED";
+        public const string ORDER_STATUS_NOT_FOUND = "ORDER_STATUS_NOT_FOUND";
+        public const string ORDER_STATUS_EXISTED = "ORDER_STATUS_EXISTED";
+        public const string ORDER_STATUS_BEING_USED = "ORDER_STATUS_BEING_USED";
+        public const string CANNOT_DELETE_DEFAULT_ORDER_STATUS = "CANNOT_DELETE_DEFAULT_ORDER_STATUS";
     }
 }
