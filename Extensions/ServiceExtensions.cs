@@ -158,6 +158,11 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IDamageTypeRepository, DamageTypeRepository>();
+            services.AddScoped<IStorageTypeRepository, StorageTypeRepository>();
+            services.AddScoped<ISupplierRepository, SupplierRepository>();
+            services.AddScoped<IDeliveryServiceRepository, DeliveryServiceRepository>();
+            services.AddScoped<IOrderStatusRepository, OrderStatusRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
@@ -168,6 +173,11 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IStaffService, StaffService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IDamageTypeService, DamageTypeService>();
+            services.AddScoped<IStorageTypeService, StorageTypeService>();
+            services.AddScoped<ISupplierService, SupplierService>();
+            services.AddScoped<IDeliveryServiceService, DeliveryServiceService>();
+            services.AddScoped<IOrderStatusService, OrderStatusService>();
 
             return services;
         }
