@@ -37,7 +37,7 @@ namespace NHT_Marine_BE.Controllers
                 result.Status,
                 new SuccessResponseDto
                 {
-                    Data = result.Data!.Select(rp => rp.ToPromotionDto()),
+                    Data = result.Data!.Select(rp => rp),
                     Total = result.Total,
                     Took = result.Took,
                 }

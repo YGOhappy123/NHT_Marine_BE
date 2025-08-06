@@ -52,7 +52,11 @@ namespace NHT_Marine_BE.Repositories
 
         public async Task<(List<Promotion>, int)> GetAllPromotions(BaseQueryObject queryObject)
         {
-            var query = _dbContext.Promotions.Include(p => p.CreatedByStaff).AsQueryable();
+            var query = _dbContext
+                .Promotions.Include(p => p.CreatedByStaff)
+                .Include(p => p.Products)
+                .ThenInclude(pp => pp.Product)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(queryObject.Filter))
             {

@@ -21,6 +21,7 @@ namespace NHT_Marine_BE.Extensions.Mappers
                 CreatedAt = promotion.CreatedAt,
                 CreatedBy = promotion.CreatedBy,
                 CreatedByStaff = promotion.CreatedByStaff?.ToStaffDto(),
+                Products = promotion.Products.Select(pp => pp.Product?.ToRootProductDto()).ToList(),
             };
         }
 
