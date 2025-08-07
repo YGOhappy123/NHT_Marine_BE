@@ -42,6 +42,7 @@ namespace NHT_Marine_BE.Utilities
         public const string UPDATE_CART_SUCCESSFULLY = "UPDATE_CART_SUCCESSFULLY";
         public const string RESET_CART_SUCCESSFULLY = "RESET_CART_SUCCESSFULLY";
         public const string PLACE_ORDER_SUCCESSFULLY = "PLACE_ORDER_SUCCESSFULLY";
+        public const string UPDATE_ORDER_SUCCESSFULLY = "UPDATE_ORDER_SUCCESSFULLY";
 
         // Promotion and coupon related
         public const string CREATE_PROMOTION_SUCCESSFULLY = "CREATE_PROMOTION_SUCCESSFULLY";

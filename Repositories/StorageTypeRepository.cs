@@ -4,7 +4,6 @@ using NHT_Marine_BE.Data;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Models.Stock;
-using NHT_Marine_BE.Models.User;
 using NHT_Marine_BE.Utilities;
 
 namespace NHT_Marine_BE.Repositories

@@ -42,6 +42,8 @@ namespace NHT_Marine_BE.Utilities
         public const string CART_NOT_FOUND = "CART_NOT_FOUND";
         public const string CART_ITEM_NOT_FOUND = "CART_ITEM_NOT_FOUND";
         public const string ORDER_SYSTEM_TEMPORARILY_UNAVAILABLE = "ORDER_SYSTEM_TEMPORARILY_UNAVAILABLE";
+        public const string ORDER_NOT_FOUND = "ORDER_NOT_FOUND";
+        public const string CANNOT_UPDATE_TO_THIS_STATUS = "CANNOT_UPDATE_TO_THIS_STATUS";
 
         // Promotion and coupon related
         public const string COUPON_NOT_FOUND = "COUPON_NOT_FOUND";

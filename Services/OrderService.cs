@@ -22,21 +22,30 @@ namespace NHT_Marine_BE.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepo;
+        private readonly IOrderStatusRepository _orderStatusRepo;
         private readonly ICouponRepository _couponRepo;
         private readonly IProductRepository _productRepo;
         private readonly ICartRepository _cartRepo;
+        private readonly IRoleRepository _roleRepo;
+        private readonly IStorageRepository _storageRepo;
 
         public OrderService(
             IOrderRepository orderRepo,
+            IOrderStatusRepository orderStatusRepo,
             ICouponRepository couponRepo,
             IProductRepository productRepo,
-            ICartRepository cartRepo
+            ICartRepository cartRepo,
+            IRoleRepository roleRepo,
+            IStorageRepository storageRepo
         )
         {
             _orderRepo = orderRepo;
+            _orderStatusRepo = orderStatusRepo;
             _couponRepo = couponRepo;
             _productRepo = productRepo;
             _cartRepo = cartRepo;
+            _roleRepo = roleRepo;
+            _storageRepo = storageRepo;
         }
 
         private async Task<int> CalculateDiscountRateAsync(int productId)
@@ -175,6 +184,44 @@ namespace NHT_Marine_BE.Services
             };
         }
 
+        public async Task<ServiceResponse<List<OrderDto>>> GetCustomerOrders(BaseQueryObject queryObject, int customerId)
+        {
+            var (orders, total) = await _orderRepo.GetCustomerOrders(queryObject, customerId);
+
+            var mappedOrders = orders.Select(o => o.ToOrderDto()).ToList();
+            foreach (var order in mappedOrders)
+            {
+                var statusUpdateLogs = await _orderRepo.GetStatusUpdateLogs(order.OrderId);
+                order.UpdateLogs =
+                [
+                    .. statusUpdateLogs.Select(log => new StatusUpdateLogDataDto
+                    {
+                        LogId = log.LogId,
+                        OrderId = log.OrderId,
+                        StatusId = log.StatusId,
+                        UpdatedAt = log.UpdatedAt,
+                        UpdatedBy = log.UpdatedBy,
+                        UpdatedByStaff = log.UpdatedByStaff?.ToStaffDto(),
+                        Status = log.Status,
+                    }),
+                ];
+
+                foreach (var orderItem in order.Items)
+                {
+                    orderItem.ProductItem = await _productRepo.GetDetailedProductItemById((int)orderItem.ProductItemId!);
+                }
+            }
+
+            return new ServiceResponse<List<OrderDto>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = mappedOrders,
+                Total = total,
+                Took = orders.Count,
+            };
+        }
+
         public async Task<ServiceResponse> PlaceNewOrder(PlaceOrderDto placeOrderDto, int customerId)
         {
             var defaultOrderStatus = await _orderRepo.GetDefaultOrderStatus();
@@ -279,6 +326,170 @@ namespace NHT_Marine_BE.Services
                 Success = true,
                 Message = SuccessMessage.PLACE_ORDER_SUCCESSFULLY,
                 OrderId = newOrder.OrderId,
+            };
+        }
+
+        public async Task<ServiceResponse> ChooseOrderInventory(int orderId, AcceptOrderDto acceptOrderDto, int authUserId, int authRoleId)
+        {
+            var hasProcessOrderPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.PROCESS_ORDER.ToString());
+            if (!hasProcessOrderPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetOrder = await _orderRepo.GetOrderById(orderId);
+            if (targetOrder == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.ORDER_NOT_FOUND,
+                };
+            }
+
+            var orderStatus = await _orderStatusRepo.GetOrderStatusById(acceptOrderDto.StatusId);
+            if (orderStatus == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.ORDER_STATUS_NOT_FOUND,
+                };
+            }
+
+            var isValidTransition = await _orderStatusRepo.CheckValidStatusTransition(
+                (int)targetOrder.OrderStatusId!,
+                acceptOrderDto.StatusId
+            );
+            if (!isValidTransition || !targetOrder.OrderStatus!.IsDefaultState || orderStatus.IsUnfulfilled)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.CANNOT_UPDATE_TO_THIS_STATUS,
+                };
+            }
+
+            targetOrder.OrderStatusId = acceptOrderDto.StatusId;
+            await _orderRepo.ProcessOrderInventory(acceptOrderDto);
+            await _orderRepo.UpdateOrder(targetOrder);
+            await _orderRepo.AddStatusUpdateLog(
+                new OrderStatusUpdateLog
+                {
+                    OrderId = orderId,
+                    StatusId = acceptOrderDto.StatusId,
+                    UpdatedBy = authUserId,
+                }
+            );
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.UPDATE_ORDER_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> UpdateOrderStatus(
+            int orderId,
+            UpdateOrderStatusDto updateOrderStatusDto,
+            int authUserId,
+            int authRoleId
+        )
+        {
+            var hasProcessOrderPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.PROCESS_ORDER.ToString());
+            if (!hasProcessOrderPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetOrder = await _orderRepo.GetOrderById(orderId);
+            if (targetOrder == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.ORDER_NOT_FOUND,
+                };
+            }
+
+            var orderStatus = await _orderStatusRepo.GetOrderStatusById(updateOrderStatusDto.StatusId);
+            if (orderStatus == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.ORDER_STATUS_NOT_FOUND,
+                };
+            }
+
+            var isValidTransition = await _orderStatusRepo.CheckValidStatusTransition(
+                (int)targetOrder.OrderStatusId!,
+                updateOrderStatusDto.StatusId
+            );
+            if (!isValidTransition || (targetOrder.OrderStatus!.IsDefaultState && !orderStatus.IsUnfulfilled))
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.CANNOT_UPDATE_TO_THIS_STATUS,
+                };
+            }
+
+            targetOrder.OrderStatusId = updateOrderStatusDto.StatusId;
+            await _orderRepo.UpdateOrder(targetOrder);
+            await _orderRepo.AddStatusUpdateLog(
+                new OrderStatusUpdateLog
+                {
+                    OrderId = orderId,
+                    StatusId = updateOrderStatusDto.StatusId,
+                    UpdatedBy = authUserId,
+                }
+            );
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.UPDATE_ORDER_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse<List<ProductInventoryDto>>> GetProductItemInventories(List<int> productItemIds, int authRoleId)
+        {
+            var hasProcessOrderPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.PROCESS_ORDER.ToString());
+            if (!hasProcessOrderPermission)
+            {
+                return new ServiceResponse<List<ProductInventoryDto>>
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var inventories = await _storageRepo.GetProductItemInventories(productItemIds);
+            return new ServiceResponse<List<ProductInventoryDto>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = inventories,
             };
         }
     }

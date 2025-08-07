@@ -45,9 +45,32 @@ namespace NHT_Marine_BE.Controllers
 
         [Authorize(Policy = "StaffOnly")]
         [HttpGet]
-        public async Task<IActionResult> GetAllRoles([FromQuery] BaseQueryObject queryObject)
+        public async Task<IActionResult> GetAllOrders([FromQuery] BaseQueryObject queryObject)
         {
             var result = await _orderService.GetAllOrders(queryObject);
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(
+                result.Status,
+                new SuccessResponseDto
+                {
+                    Data = result.Data,
+                    Total = result.Total,
+                    Took = result.Took,
+                }
+            );
+        }
+
+        [Authorize(Policy = "CustomerOnly")]
+        [HttpGet("my-orders")]
+        public async Task<IActionResult> GetCustomerOrders([FromQuery] BaseQueryObject queryObject)
+        {
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            var result = await _orderService.GetCustomerOrders(queryObject, int.Parse(authUserId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
@@ -85,6 +108,74 @@ namespace NHT_Marine_BE.Controllers
             }
 
             return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message, Data = new { result.OrderId } });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("{orderId:int}/inventory")]
+        public async Task<IActionResult> ChooseOrderInventory([FromRoute] int orderId, [FromBody] AcceptOrderDto acceptOrderDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            var result = await _orderService.ChooseOrderInventory(orderId, acceptOrderDto, int.Parse(authUserId!), int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("{orderId:int}/status")]
+        public async Task<IActionResult> UpdateOrderStatus([FromRoute] int orderId, [FromBody] UpdateOrderStatusDto updateOrderStatusDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            var result = await _orderService.UpdateOrderStatus(
+                orderId,
+                updateOrderStatusDto,
+                int.Parse(authUserId!),
+                int.Parse(authRoleId!)
+            );
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet("inventory")]
+        public async Task<IActionResult> GetProductItemInventories([FromQuery] List<int> ids)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _orderService.GetProductItemInventories(ids, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Data = result.Data });
         }
     }
 }

@@ -15,5 +15,6 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task RemoveOrderStatus(OrderStatus orderStatus);
         Task<OrderStatus?> GetDefaultOrderStatus();
         Task RemoveStatusTransitionsByStatusId(int statusId);
+        Task<bool> CheckValidStatusTransition(int fromStatusId, int toStatusId);
     }
 }

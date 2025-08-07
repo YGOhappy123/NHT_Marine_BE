@@ -166,6 +166,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<ISupplierRepository, SupplierRepository>();
             services.AddScoped<IDeliveryServiceRepository, DeliveryServiceRepository>();
             services.AddScoped<IOrderStatusRepository, OrderStatusRepository>();
+            services.AddScoped<IStorageRepository, StorageRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();

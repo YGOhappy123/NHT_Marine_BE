@@ -137,5 +137,10 @@ namespace NHT_Marine_BE.Repositories
             _dbContext.StatusTransitions.RemoveRange(transitions);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<bool> CheckValidStatusTransition(int fromStatusId, int toStatusId)
+        {
+            return await _dbContext.StatusTransitions.AnyAsync(st => st.FromStatusId == fromStatusId && st.ToStatusId == toStatusId);
+        }
     }
 }
