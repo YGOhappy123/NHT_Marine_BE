@@ -63,6 +63,35 @@ namespace NHT_Marine_BE.Repositories
             return query;
         }
 
+        public async Task<(List<Staff>, int)> GetAllStaffs(BaseQueryObject queryObject)
+        {
+            var query = _dbContext.Staffs.Include(st => st.Account).Include(st => st.CreatedByStaff).Include(st => st.Role).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(queryObject.Filter))
+            {
+                var parsedFilter = JsonSerializer.Deserialize<Dictionary<string, object>>(queryObject.Filter);
+                query = ApplyFilters(query, parsedFilter!);
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryObject.Sort))
+            {
+                var parsedSort = JsonSerializer.Deserialize<Dictionary<string, string>>(queryObject.Sort);
+                query = ApplySorting(query, parsedSort!);
+            }
+
+            var total = await query.CountAsync();
+
+            if (queryObject.Skip.HasValue)
+                query = query.Skip(queryObject.Skip.Value);
+
+            if (queryObject.Limit.HasValue)
+                query = query.Take(queryObject.Limit.Value);
+
+            var staffs = await query.ToListAsync();
+
+            return (staffs, total);
+        }
+
         public async Task<Staff?> GetStaffById(int staffId)
         {
             return await _dbContext
@@ -111,35 +140,6 @@ namespace NHT_Marine_BE.Repositories
                 .Include(st => st.Role)
                 .Where(st => st.Email == email)
                 .FirstOrDefaultAsync();
-        }
-
-        public async Task<(List<Staff>, int)> GetAllStaffs(BaseQueryObject queryObject)
-        {
-            var query = _dbContext.Staffs.Include(st => st.Account).Include(st => st.CreatedByStaff).Include(st => st.Role).AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(queryObject.Filter))
-            {
-                var parsedFilter = JsonSerializer.Deserialize<Dictionary<string, object>>(queryObject.Filter);
-                query = ApplyFilters(query, parsedFilter!);
-            }
-
-            if (!string.IsNullOrWhiteSpace(queryObject.Sort))
-            {
-                var parsedSort = JsonSerializer.Deserialize<Dictionary<string, string>>(queryObject.Sort);
-                query = ApplySorting(query, parsedSort!);
-            }
-
-            var total = await query.CountAsync();
-
-            if (queryObject.Skip.HasValue)
-                query = query.Skip(queryObject.Skip.Value);
-
-            if (queryObject.Limit.HasValue)
-                query = query.Take(queryObject.Limit.Value);
-
-            var customers = await query.ToListAsync();
-
-            return (customers, total);
         }
 
         public async Task AddStaff(Staff staff)

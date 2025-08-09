@@ -1,8 +1,12 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NHT_Marine_BE.Data;
 using NHT_Marine_BE.Data.Dtos.Order;
 using NHT_Marine_BE.Data.Dtos.Stock;
+using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Interfaces.Repositories;
+using NHT_Marine_BE.Models.Stock;
+using NHT_Marine_BE.Utilities;
 
 namespace NHT_Marine_BE.Repositories
 {
@@ -13,6 +17,68 @@ namespace NHT_Marine_BE.Repositories
         public StorageRepository(ApplicationDBContext context)
         {
             _dbContext = context;
+        }
+
+        private IQueryable<Storage> ApplyFilters(IQueryable<Storage> query, Dictionary<string, object> filters)
+        {
+            foreach (var filter in filters)
+            {
+                string value = filter.Value.ToString() ?? "";
+
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    switch (filter.Key)
+                    {
+                        default:
+                            query = query.Where(s => EF.Property<string>(s, filter.Key.CapitalizeSingleWord()) == value);
+                            break;
+                    }
+                }
+            }
+
+            return query;
+        }
+
+        private IQueryable<Storage> ApplySorting(IQueryable<Storage> query, Dictionary<string, string> sort)
+        {
+            foreach (var order in sort)
+            {
+                query =
+                    order.Value == "ASC"
+                        ? query.OrderBy(s => EF.Property<object>(s, order.Key.CapitalizeSingleWord()))
+                        : query.OrderByDescending(s => EF.Property<object>(s, order.Key.CapitalizeSingleWord()));
+            }
+
+            return query;
+        }
+
+        public async Task<(List<Storage>, int)> GetAllStorages(BaseQueryObject queryObject)
+        {
+            var query = _dbContext.Storages.Include(s => s.Type).Include(s => s.ProductItems).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(queryObject.Filter))
+            {
+                var parsedFilter = JsonSerializer.Deserialize<Dictionary<string, object>>(queryObject.Filter);
+                query = ApplyFilters(query, parsedFilter!);
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryObject.Sort))
+            {
+                var parsedSort = JsonSerializer.Deserialize<Dictionary<string, string>>(queryObject.Sort);
+                query = ApplySorting(query, parsedSort!);
+            }
+
+            var total = await query.CountAsync();
+
+            if (queryObject.Skip.HasValue)
+                query = query.Skip(queryObject.Skip.Value);
+
+            if (queryObject.Limit.HasValue)
+                query = query.Take(queryObject.Limit.Value);
+
+            var storages = await query.ToListAsync();
+
+            return (storages, total);
         }
 
         public async Task<List<ProductInventoryDto>> GetProductItemInventories(List<int> productItemIds)
@@ -33,6 +99,31 @@ namespace NHT_Marine_BE.Repositories
                         .ToList(),
                 })
                 .ToListAsync();
+        }
+
+        public async Task<Inventory?> GetInventoryByStorageAndProductItemId(int storageId, int productItemId)
+        {
+            return await _dbContext
+                .Inventories.Where(iv => iv.StorageId == storageId && iv.ProductItemId == productItemId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task AddInventory(Inventory inventory)
+        {
+            _dbContext.Inventories.Add(inventory);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateInventory(Inventory inventory)
+        {
+            _dbContext.Inventories.Update(inventory);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteInventory(Inventory inventory)
+        {
+            _dbContext.Inventories.Remove(inventory);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

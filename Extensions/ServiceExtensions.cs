@@ -188,6 +188,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IDeliveryServiceService, DeliveryServiceService>();
             services.AddScoped<IOrderStatusService, OrderStatusService>();
             services.AddScoped<IStatisticService, StatisticService>();
+            services.AddScoped<IStorageService, StorageService>();
 
             return services;
         }
