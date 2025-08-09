@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NHT_Marine_BE.Data;
 using NHT_Marine_BE.Data.Dtos.Product;
+using NHT_Marine_BE.Data.Dtos.Statistic;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Models.Product;
@@ -94,6 +95,9 @@ namespace NHT_Marine_BE.Repositories
                 .RootProducts
                 // Include category
                 .Include(rp => rp.Category)
+                // Include variants and options
+                .Include(rp => rp.Variants)
+                .ThenInclude(pv => pv.Options)
                 // Include product items, stock and attributes
                 .Include(rp => rp.ProductItems)
                 .ThenInclude(pi => pi.Attributes)
@@ -268,7 +272,7 @@ namespace NHT_Marine_BE.Repositories
                     ProductItemId = pi.ProductItemId,
                     ImageUrl = pi.ImageUrl,
                     Price = pi.Price,
-                    Attribute = pi
+                    Attributes = pi
                         .Attributes.Select(pa => new PartialAttributeDto { Variant = pa.Option!.Variant!.Name, Option = pa.Option.Value })
                         .ToList(),
                     RootProduct = new PartialRootProductDto
@@ -296,7 +300,7 @@ namespace NHT_Marine_BE.Repositories
                     ProductItemId = pi.ProductItemId,
                     ImageUrl = pi.ImageUrl,
                     Price = pi.Price,
-                    Attribute = pi
+                    Attributes = pi
                         .Attributes.Select(pa => new PartialAttributeDto { Variant = pa.Option!.Variant!.Name, Option = pa.Option.Value })
                         .ToList(),
                     RootProduct = new PartialRootProductDto
@@ -329,6 +333,29 @@ namespace NHT_Marine_BE.Repositories
         {
             _dbContext.ProductItems.Update(productItem);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<ProductStatisticDto>> GetProductStatisticInTimeRange(DateTime startTime, DateTime endTime, int productId)
+        {
+            var matchingOrderIds = await _dbContext
+                .Orders.Where(o => o.CreatedAt >= startTime && o.CreatedAt < endTime && o.OrderStatus!.IsAccounted == true)
+                .Select(o => o.OrderId)
+                .ToListAsync();
+
+            var matchingOrderItems = await _dbContext
+                .OrderItems.Where(oi =>
+                    matchingOrderIds.Contains((int)oi.OrderId!) && oi.ProductItem!.RootProduct!.RootProductId == productId
+                )
+                .GroupBy(oi => oi.ProductItemId)
+                .Select(g => new ProductStatisticDto
+                {
+                    ProductItemId = (int)g.Key!,
+                    TotalUnits = g.Sum(oi => oi.Quantity),
+                    TotalSales = g.Sum(oi => oi.Price * oi.Quantity),
+                })
+                .ToListAsync();
+
+            return matchingOrderItems;
         }
     }
 }

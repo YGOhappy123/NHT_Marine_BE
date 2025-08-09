@@ -16,5 +16,6 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task UpdateOrder(Order order);
         Task ProcessOrderInventory(AcceptOrderDto acceptOrderDto);
         Task AddStatusUpdateLog(OrderStatusUpdateLog log);
+        Task<List<Order>> GetAllOrdersInTimeRange(DateTime startTime, DateTime endTime);
     }
 }

@@ -96,5 +96,28 @@ namespace NHT_Marine_BE.Services
             );
             await SendEmail(emailTo, title, body);
         }
+
+        public async Task SendWelcomeNewStaffEmail(
+            string emailTo,
+            string fullname,
+            string username,
+            string password,
+            string changePasswordUrl
+        )
+        {
+            string title = "NHT Marine - Chào mừng nhân viên mới";
+            string body = GenerateTemplate(
+                "WelcomeNewStaff.hbs",
+                new
+                {
+                    Title = title,
+                    Fullname = fullname,
+                    Username = username,
+                    Password = password,
+                    ChangePasswordUrl = changePasswordUrl,
+                }
+            );
+            await SendEmail(emailTo, title, body);
+        }
     }
 }

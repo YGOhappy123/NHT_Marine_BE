@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace NHT_Marine_BE.Data.Dtos.Product
 {
     public class DetailedProductItemDto
@@ -7,7 +5,7 @@ namespace NHT_Marine_BE.Data.Dtos.Product
         public int ProductItemId { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public List<PartialAttributeDto> Attribute { get; set; } = [];
+        public List<PartialAttributeDto> Attributes { get; set; } = [];
         public PartialRootProductDto? RootProduct { get; set; }
         public int Stock { get; set; }
         public decimal DiscountRate { get; set; }

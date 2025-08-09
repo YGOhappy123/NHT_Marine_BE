@@ -166,6 +166,8 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<ISupplierRepository, SupplierRepository>();
             services.AddScoped<IDeliveryServiceRepository, DeliveryServiceRepository>();
             services.AddScoped<IOrderStatusRepository, OrderStatusRepository>();
+            services.AddScoped<IImportRepository, ImportRepository>();
+            services.AddScoped<IDamageReportRepository, DamageReportRepository>();
             services.AddScoped<IStorageRepository, StorageRepository>();
 
             // Services interfaces
@@ -185,6 +187,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IDeliveryServiceService, DeliveryServiceService>();
             services.AddScoped<IOrderStatusService, OrderStatusService>();
+            services.AddScoped<IStatisticService, StatisticService>();
 
             return services;
         }

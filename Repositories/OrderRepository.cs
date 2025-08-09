@@ -214,5 +214,13 @@ namespace NHT_Marine_BE.Repositories
             _dbContext.OrderStatusUpdateLogs.Add(log);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<List<Order>> GetAllOrdersInTimeRange(DateTime startTime, DateTime endTime)
+        {
+            return await _dbContext
+                .Orders.Include(o => o.OrderStatus)
+                .Where(od => od.CreatedAt >= startTime && od.CreatedAt < endTime)
+                .ToListAsync();
+        }
     }
 }

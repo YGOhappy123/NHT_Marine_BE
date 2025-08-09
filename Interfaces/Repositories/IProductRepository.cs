@@ -1,4 +1,5 @@
 using NHT_Marine_BE.Data.Dtos.Product;
+using NHT_Marine_BE.Data.Dtos.Statistic;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Models.Product;
 
@@ -20,5 +21,6 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task<ProductItem?> GetProductItemById(int productItemId);
         Task<int> GetProductItemCurrentStock(int productItemId);
         Task UpdateProductItem(ProductItem productItem);
+        Task<List<ProductStatisticDto>> GetProductStatisticInTimeRange(DateTime startTime, DateTime endTime, int productId);
     }
 }

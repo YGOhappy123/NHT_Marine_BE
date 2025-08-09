@@ -43,7 +43,31 @@ namespace NHT_Marine_BE.Controllers
         }
 
         [Authorize(Policy = "StaffOnly")]
-        [HttpPatch("{staffId:int}")]
+        [HttpPost]
+        public async Task<IActionResult> CreateNewStaff([FromBody] CreateStaffDto createStaffDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _staffService.CreateNewStaff(createStaffDto, int.Parse(authUserId!), int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("{staffId:int}/info")]
         public async Task<IActionResult> UpdateStaffProfile([FromRoute] int staffId, [FromBody] UpdateUserDto updateStaffDto)
         {
             if (!ModelState.IsValid)
@@ -58,6 +82,45 @@ namespace NHT_Marine_BE.Controllers
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
             var result = await _staffService.UpdateStaffProfile(updateStaffDto, staffId, int.Parse(authUserId!), int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("{staffId:int}/role")]
+        public async Task<IActionResult> ChangeStaffRole([FromRoute] int staffId, [FromBody] ChangeStaffRoleDto changeStaffRoleDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _staffService.ChangeStaffRole(changeStaffRoleDto, staffId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost("{staffId:int}/deactivate-account")]
+        public async Task<IActionResult> DeactivateAccount([FromRoute] int staffId)
+        {
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _staffService.StaffDeactivateAccount(staffId, int.Parse(authUserId!), int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });

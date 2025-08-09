@@ -10,5 +10,6 @@ namespace NHT_Marine_BE.Interfaces.Services
             string password,
             string changePasswordUrl
         );
+        Task SendWelcomeNewStaffEmail(string emailTo, string fullname, string username, string password, string changePasswordUrl);
     }
 }

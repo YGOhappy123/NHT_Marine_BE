@@ -240,14 +240,6 @@ namespace NHT_Marine_BE.Controllers
         [HttpPost("deactivate-account")]
         public async Task<IActionResult> DeactivateAccount()
         {
-            if (!ModelState.IsValid)
-            {
-                return StatusCode(
-                    ResStatusCode.UNPROCESSABLE_ENTITY,
-                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
-                );
-            }
-
             var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
 
             var result = await _authService.CustomerDeactivateAccount(int.Parse(authUserId!));

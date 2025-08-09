@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NHT_Marine_BE.Data;
+using NHT_Marine_BE.Data.Dtos.User;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Models.User;
@@ -128,6 +129,75 @@ namespace NHT_Marine_BE.Repositories
         {
             _dbContext.Customers.Update(customer);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<Customer>> GetAllCustomersInTimeRange(DateTime startTime, DateTime endTime)
+        {
+            return await _dbContext.Customers.Where(c => c.CreatedAt >= startTime && c.CreatedAt < endTime).ToListAsync();
+        }
+
+        public async Task<List<CustomerWithOrderCount>> GetCustomersWithHighestOrderCountInTimeRange(
+            DateTime startTime,
+            DateTime endTime,
+            int limit
+        )
+        {
+            var highestOrderCountCustomerIds = await _dbContext
+                .Orders.Where(o => o.CreatedAt >= startTime && o.CreatedAt < endTime)
+                .GroupBy(o => o.CustomerId)
+                .Select(g => new { CustomerId = g.Key, OrderCount = g.Count() })
+                .OrderByDescending(x => x.OrderCount)
+                .Take(limit)
+                .Select(x => new { x.CustomerId, x.OrderCount })
+                .ToListAsync();
+
+            List<CustomerWithOrderCount> result = [];
+            foreach (var item in highestOrderCountCustomerIds)
+            {
+                var customerInfo = await _dbContext
+                    .Customers.Include(g => g.Account)
+                    .Where(g => g.CustomerId == item.CustomerId)
+                    .FirstOrDefaultAsync();
+
+                if (customerInfo != null)
+                {
+                    result.Add(new CustomerWithOrderCount(customerInfo, item.OrderCount));
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<List<CustomerWithOrderAmount>> GetCustomersWithHighestOrderAmountInTimeRange(
+            DateTime startTime,
+            DateTime endTime,
+            int limit
+        )
+        {
+            var highestOrderAmountCustomerIds = await _dbContext
+                .Orders.Where(o => o.CreatedAt >= startTime && o.CreatedAt < endTime && o.OrderStatus!.IsAccounted)
+                .GroupBy(o => o.CustomerId)
+                .Select(g => new { CustomerId = g.Key, OrderAmount = g.Sum(o => o.TotalAmount) })
+                .OrderByDescending(x => x.OrderAmount)
+                .Take(limit)
+                .Select(x => new { x.CustomerId, x.OrderAmount })
+                .ToListAsync();
+
+            List<CustomerWithOrderAmount> result = [];
+            foreach (var item in highestOrderAmountCustomerIds)
+            {
+                var customerInfo = await _dbContext
+                    .Customers.Include(g => g.Account)
+                    .Where(g => g.CustomerId == item.CustomerId)
+                    .FirstOrDefaultAsync();
+
+                if (customerInfo != null)
+                {
+                    result.Add(new CustomerWithOrderAmount(customerInfo, item.OrderAmount));
+                }
+            }
+
+            return result;
         }
     }
 }
