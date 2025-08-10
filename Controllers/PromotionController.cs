@@ -68,6 +68,32 @@ namespace NHT_Marine_BE.Controllers
         }
 
         [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("{promotionId:int}")]
+        public async Task<IActionResult> UpdatePromotion(
+            [FromRoute] int promotionId,
+            [FromBody] CreateUpdatePromotionDto updatePromotionDto
+        )
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _promotionService.UpdatePromotion(updatePromotionDto, promotionId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
         [HttpGet("coupons")]
         public async Task<IActionResult> GetAllCoupons([FromQuery] BaseQueryObject queryObject)
         {
@@ -86,6 +112,21 @@ namespace NHT_Marine_BE.Controllers
                     Took = result.Took,
                 }
             );
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost("disable-promotion/{promotionId:int}")]
+        public async Task<IActionResult> DisablePromotion([FromRoute] int promotionId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _promotionService.DisablePromotion(promotionId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
     }
 }

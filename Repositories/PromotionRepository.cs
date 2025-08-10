@@ -88,6 +88,17 @@ namespace NHT_Marine_BE.Repositories
             return await _dbContext.Promotions.Where(pr => pr.Name == promotionName).SingleOrDefaultAsync();
         }
 
+        public async Task<Promotion?> GetPromotionById(int promotionId)
+        {
+            return await _dbContext
+                .Promotions.Include(p => p.CreatedByStaff)
+                .Include(p => p.Products)
+                .ThenInclude(pp => pp.Product)
+                .Include(p => p.Products)
+                .ThenInclude(pp => pp.Product)
+                .SingleOrDefaultAsync(p => p.PromotionId == promotionId);
+        }
+
         public async Task AddPromotion(Promotion promotion)
         {
             _dbContext.Promotions.Add(promotion);

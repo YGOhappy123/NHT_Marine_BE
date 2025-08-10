@@ -46,6 +46,8 @@ namespace NHT_Marine_BE.Utilities
 
         // Promotion and coupon related
         public const string CREATE_PROMOTION_SUCCESSFULLY = "CREATE_PROMOTION_SUCCESSFULLY";
+        public const string UPDATE_PROMOTION_SUCCESSFULLY = "UPDATE_PROMOTION_SUCCESSFULLY";
+        public const string DISABLE_PROMOTION_SUCCESSFULLY = "DISABLE_PROMOTION_SUCCESSFULLY";
 
         // Stock related
         public const string CREATE_DAMAGE_TYPE_SUCCESSFULLY = "CREATE_DAMAGE_TYPE_SUCCESSFULLY";

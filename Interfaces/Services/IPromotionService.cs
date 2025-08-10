@@ -10,6 +10,8 @@ namespace NHT_Marine_BE.Interfaces.Services
     {
         Task<ServiceResponse<List<PromotionDto>>> GetAllPromotions(BaseQueryObject queryObject);
         Task<ServiceResponse> AddNewPromotion(CreateUpdatePromotionDto createDto, int authRoleId);
+        Task<ServiceResponse> UpdatePromotion(CreateUpdatePromotionDto updateDto, int promotionId, int authRoleId);
         Task<ServiceResponse<List<Coupon>>> GetAllCoupons(BaseQueryObject queryObject);
+        Task<ServiceResponse> DisablePromotion(int promotionId, int authRoleId);
     }
 }
