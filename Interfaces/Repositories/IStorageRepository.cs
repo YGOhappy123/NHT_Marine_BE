@@ -12,5 +12,12 @@ namespace NHT_Marine_BE.Interfaces.Repositories
         Task AddInventory(Inventory inventory);
         Task UpdateInventory(Inventory inventory);
         Task DeleteInventory(Inventory inventory);
+        Task<bool> VerifyPermission(int authRoleId, string permission);
+        Task<Storage?> GetStorageById(int storageId);
+        Task<Storage?> GetStorageByName(string storageName);
+        Task<bool> IsStorageBeingUsed(int storageId);
+        Task AddStorage(Storage storage);
+        Task UpdateStorage(Storage storage);
+        Task DeleteStorage(Storage storage);
     }
 }
