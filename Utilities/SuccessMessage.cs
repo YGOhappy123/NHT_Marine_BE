@@ -19,13 +19,11 @@ namespace NHT_Marine_BE.Utilities
         public const string CREATE_ROLE_SUCCESSFULLY = "CREATE_ROLE_SUCCESSFULLY";
         public const string UPDATE_ROLE_SUCCESSFULLY = "UPDATE_ROLE_SUCCESSFULLY";
         public const string DELETE_ROLE_SUCCESSFULLY = "DELETE_ROLE_SUCCESSFULLY";
+        public const string DEACTIVATE_CUSTOMER_SUCCESSFULLY = "DEACTIVATE_CUSTOMER_SUCCESSFULLY";
 
         // Services related
         public const string UPLOAD_IMAGE_SUCCESSFULLY = "UPLOAD_IMAGE_SUCCESSFULLY";
         public const string DELETE_IMAGE_SUCCESSFULLY = "DELETE_IMAGE_SUCCESSFULLY";
-
-        // Customers related
-        public const string DEACTIVATE_CUSTOMER_SUCCESSFULLY = "DEACTIVATE_CUSTOMER_SUCCESSFULLY";
 
         // Categories related
         public const string CREATE_CATEGORY_SUCCESSFULLY = "CREATE_CATEGORY_SUCCESSFULLY";
@@ -58,6 +56,8 @@ namespace NHT_Marine_BE.Utilities
         public const string UPDATE_SUPPLIER_SUCCESSFULLY = "UPDATE_SUPPLIER_SUCCESSFULLY";
         public const string DELETE_SUPPLIER_SUCCESSFULLY = "DELETE_SUPPLIER_SUCCESSFULLY";
         public const string UPDATE_INVENTORY_SUCCESSFULLY = "UPDATE_INVENTORY_SUCCESSFULLY";
+        public const string TRACK_IMPORT_SUCCESSFULLY = "TRACK_IMPORT_SUCCESSFULLY";
+        public const string DISTRIBUTE_IMPORT_SUCCESSFULLY = "DISTRIBUTE_IMPORT_SUCCESSFULLY";
 
         // Transactions related
         public const string CREATE_DELIVERY_SERVICE_SUCCESSFULLY = "CREATE_DELIVERY_SERVICE_SUCCESSFULLY";

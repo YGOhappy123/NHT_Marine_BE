@@ -69,6 +69,9 @@ namespace NHT_Marine_BE.Utilities
         public const string SUPPLIER_CONTACT_PHONE_EXISTED = "SUPPLIER_CONTACT_PHONE_EXISTED";
         public const string INVENTORY_NOT_FOUND = "INVENTORY_NOT_FOUND";
         public const string INVENTORY_QUANTITY_NOT_ENOUGH = "INVENTORY_QUANTITY_NOT_ENOUGH";
+        public const string PRODUCT_IMPORT_NOT_FOUND = "PRODUCT_IMPORT_NOT_FOUND";
+        public const string PRODUCT_IMPORT_ALREADY_DISTRIBUTED = "PRODUCT_IMPORT_ALREADY_DISTRIBUTED";
+        public const string PRODUCT_QUANTITY_MISMATCH = "PRODUCT_QUANTITY_MISMATCH";
 
         // Transactions related
         public const string DELIVERY_SERVICE_NOT_FOUND = "DELIVERY_SERVICE_NOT_FOUND";

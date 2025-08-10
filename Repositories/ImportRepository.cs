@@ -27,6 +27,16 @@ namespace NHT_Marine_BE.Repositories
                 {
                     switch (filter.Key)
                     {
+                        case "isDistributed":
+                            if (value == "True" || value == "true" || value == "1")
+                            {
+                                query = query.Where(pi => pi.IsDistributed == true);
+                            }
+                            else if (value == "False" || value == "false" || value == "0")
+                            {
+                                query = query.Where(pi => pi.IsDistributed == false);
+                            }
+                            break;
                         default:
                             query = query.Where(pi => EF.Property<string>(pi, filter.Key.CapitalizeSingleWord()) == value);
                             break;
@@ -55,7 +65,7 @@ namespace NHT_Marine_BE.Repositories
             var query = _dbContext
                 .ProductImports.Include(pi => pi.Supplier)
                 .Include(pi => pi.TrackedByStaff)
-                .ThenInclude(s => s.Account)
+                .ThenInclude(s => s!.Account)
                 .Include(pi => pi.Items)
                 .AsQueryable();
 
@@ -84,9 +94,31 @@ namespace NHT_Marine_BE.Repositories
             return (imports, total);
         }
 
+        public async Task<ProductImport?> GetProductImportById(int importId)
+        {
+            return await _dbContext
+                .ProductImports.Include(pi => pi.Supplier)
+                .Include(pi => pi.TrackedByStaff)
+                .ThenInclude(s => s!.Account)
+                .Include(pi => pi.Items)
+                .SingleOrDefaultAsync(pi => pi.ImportId == importId);
+        }
+
         public async Task<List<ProductImport>> GetAllImportsInTimeRange(DateTime startTime, DateTime endTime)
         {
             return await _dbContext.ProductImports.Where(od => od.TrackedAt >= startTime && od.TrackedAt < endTime).ToListAsync();
+        }
+
+        public async Task AddProductImport(ProductImport productImport)
+        {
+            _dbContext.ProductImports.Add(productImport);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateProductImport(ProductImport productImport)
+        {
+            _dbContext.ProductImports.Update(productImport);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
