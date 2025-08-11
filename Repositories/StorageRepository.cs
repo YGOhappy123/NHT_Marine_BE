@@ -125,5 +125,46 @@ namespace NHT_Marine_BE.Repositories
             _dbContext.Inventories.Remove(inventory);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<Storage?> GetStorageById(int storageId)
+        {
+            return await _dbContext.Storages.SingleOrDefaultAsync(st => st.StorageId == storageId);
+        }
+
+        public async Task<Storage?> GetStorageByName(string storageName)
+        {
+            return await _dbContext.Storages.Where(st => st.Name == storageName).SingleOrDefaultAsync();
+        }
+
+        public async Task<bool> IsStorageBeingUsed(int storageId)
+        {
+            return await _dbContext.ProductDamageReports.AnyAsync(sto => sto.StorageId == storageId)
+                || await _dbContext.Inventories.AnyAsync(iv => iv.StorageId == storageId);
+        }
+
+        public async Task AddStorage(Storage storage)
+        {
+            _dbContext.Storages.Add(storage);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateStorage(Storage storage)
+        {
+            _dbContext.Storages.Update(storage);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteStorage(Storage storage)
+        {
+            _dbContext.Storages.Remove(storage);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> VerifyPermission(int authRoleId, string permission)
+        {
+            return await _dbContext.RolesPermissions.AnyAsync(rp =>
+                rp.RoleId == authRoleId && rp.Permission != null && rp.Permission.Code == permission
+            );
+        }
     }
 }

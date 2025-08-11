@@ -78,5 +78,100 @@ namespace NHT_Marine_BE.Controllers
 
             return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet("verify-permission")]
+        public async Task<IActionResult> VerifyPermission([FromQuery] string permission)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _storageService.VerifyPermission(int.Parse(authRoleId!), permission);
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet("{storageId:int}")]
+        public async Task<IActionResult> GetStorageTypeById([FromRoute] int storageId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _storageService.GetStorageById(storageId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Data = result.Data });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost]
+        public async Task<IActionResult> AddNewStorage([FromBody] CreateUpdateStorageDto createStorageDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _storageService.AddNewStorage(createStorageDto, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("{storageId:int}")]
+        public async Task<IActionResult> UpdateStorage([FromRoute] int storageId, [FromBody] CreateUpdateStorageDto updateStorageDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _storageService.UpdateStorage(updateStorageDto, storageId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpDelete("{storageId:int}")]
+        public async Task<IActionResult> RemoveStorage([FromRoute] int storageId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _storageService.RemoveStorage(storageId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
     }
 }
