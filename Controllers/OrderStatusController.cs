@@ -139,5 +139,82 @@ namespace NHT_Marine_BE.Controllers
 
             return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpGet("transitions")]
+        public async Task<IActionResult> GetAllTransitions([FromQuery] BaseQueryObject queryObject)
+        {
+            var result = await _orderStatusService.GetAllTransitions(queryObject);
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Data = result.Data });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost("transitions")]
+        public async Task<IActionResult> AddNewTransition([FromBody] CreateUpdateStatusTransitionDto createStatusTransitionDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _orderStatusService.AddNewTransition(createStatusTransitionDto, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("transitions/{transitionId:int}")]
+        public async Task<IActionResult> UpdateTransition(
+            [FromRoute] int transitionId,
+            [FromBody] CreateUpdateStatusTransitionDto updateStatusTransitionDto
+        )
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _orderStatusService.UpdateTransition(updateStatusTransitionDto, transitionId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpDelete("transitions/{transitionId:int}")]
+        public async Task<IActionResult> RemoveTransition([FromRoute] int transitionId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _orderStatusService.RemoveTransition(transitionId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
     }
 }
