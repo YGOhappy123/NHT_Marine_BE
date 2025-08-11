@@ -1,3 +1,4 @@
+using CloudinaryDotNet.Actions;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Dtos.Stock;
 using NHT_Marine_BE.Data.Queries;
@@ -15,12 +16,19 @@ namespace NHT_Marine_BE.Services
         private readonly IProductRepository _productRepo;
         private readonly IStorageRepository _storageRepo;
         private readonly IRoleRepository _roleRepo;
+        private readonly IStorageTypeRepository _storageTypeRepo;
 
-        public StorageService(IProductRepository productRepo, IStorageRepository storageRepo, IRoleRepository roleRepo)
+        public StorageService(
+            IProductRepository productRepo,
+            IStorageRepository storageRepo,
+            IRoleRepository roleRepo,
+            IStorageTypeRepository storageTypeRepo
+        )
         {
             _productRepo = productRepo;
             _storageRepo = storageRepo;
             _roleRepo = roleRepo;
+            _storageTypeRepo = storageTypeRepo;
         }
 
         public async Task<ServiceResponse<List<StorageDto>>> GetAllStorages(BaseQueryObject queryObject)
@@ -195,6 +203,207 @@ namespace NHT_Marine_BE.Services
                 Status = ResStatusCode.OK,
                 Success = true,
                 Message = SuccessMessage.UPDATE_INVENTORY_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse<bool>> VerifyPermission(int authRoleId, string permission)
+        {
+            var isVerified = await _storageRepo.VerifyPermission(authRoleId, permission);
+            if (isVerified)
+            {
+                return new ServiceResponse<bool>
+                {
+                    Status = ResStatusCode.OK,
+                    Success = true,
+                    Message = SuccessMessage.VERIFY_PERMISSION_SUCCESSFULLY,
+                };
+            }
+            else
+            {
+                return new ServiceResponse<bool>
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+        }
+
+        public async Task<ServiceResponse<Storage?>> GetStorageById(int storageId, int authRoleId)
+        {
+            var hasViewStoragePermission = await _roleRepo.VerifyPermission(
+                authRoleId,
+                Permission.ACCESS_STORAGE_DASHBOARD_PAGE.ToString()
+            );
+            if (!hasViewStoragePermission && storageId != authRoleId)
+            {
+                return new ServiceResponse<Storage?>
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var storage = await _storageRepo.GetStorageById(storageId);
+            return new ServiceResponse<Storage?>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = storage,
+            };
+        }
+
+        public async Task<ServiceResponse> AddNewStorage(CreateUpdateStorageDto createDto, int authRoleId)
+        {
+            var hasAddStoragePermission = await _storageRepo.VerifyPermission(authRoleId, Permission.ADD_NEW_STORAGE.ToString());
+            if (!hasAddStoragePermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var storageWithSameName = await _storageRepo.GetStorageByName(createDto.Name);
+            if (storageWithSameName != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.STORAGE_EXISTED,
+                };
+            }
+
+            // Kiểm tra TypeId tồn tại
+            var type = await _storageTypeRepo.GetStorageTypeById(createDto.TypeId);
+            if (type == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.STORAGE_TYPE_NOT_EXIST,
+                };
+            }
+
+            var newStorage = new Storage { Name = createDto.Name.CapitalizeAllWords(), TypeId = createDto.TypeId };
+
+            await _storageRepo.AddStorage(newStorage);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.CREATED,
+                Success = true,
+                Message = SuccessMessage.CREATE_STORAGE_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> UpdateStorage(CreateUpdateStorageDto updateDto, int targetStorageId, int authRoleId)
+        {
+            var hasUpdateStoragePermission = await _storageRepo.VerifyPermission(authRoleId, Permission.UPDATE_STORAGE.ToString());
+            if (!hasUpdateStoragePermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetStorage = await _storageRepo.GetStorageById(targetStorageId);
+            if (targetStorage == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.STORAGE_NOT_FOUND,
+                };
+            }
+
+            var storageWithSameName = await _storageRepo.GetStorageByName(updateDto.Name);
+            if (storageWithSameName != null && storageWithSameName.StorageId != targetStorageId)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.STORAGE_EXISTED,
+                };
+            }
+
+            // Kiểm tra TypeId tồn tại
+            var type = await _storageTypeRepo.GetStorageTypeById(updateDto.TypeId);
+            if (type == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.STORAGE_TYPE_NOT_EXIST,
+                };
+            }
+
+            targetStorage.Name = updateDto.Name.CapitalizeAllWords();
+            targetStorage.TypeId = updateDto.TypeId;
+
+            await _storageRepo.UpdateStorage(targetStorage);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.UPDATE_STORAGE_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> RemoveStorage(int targetStorageId, int authRoleId)
+        {
+            var hasRemoveStoragePermission = await _storageRepo.VerifyPermission(authRoleId, Permission.DELETE_STORAGE.ToString());
+            if (!hasRemoveStoragePermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetStorage = await _storageRepo.GetStorageById(targetStorageId);
+            if (targetStorage == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.STORAGE_NOT_FOUND,
+                };
+            }
+
+            var isStorageBeingUsed = await _storageRepo.IsStorageBeingUsed(targetStorageId);
+            if (isStorageBeingUsed)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.STORAGE_BEING_USED,
+                };
+            }
+
+            await _storageRepo.DeleteStorage(targetStorage);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.DELETE_STORAGE_SUCCESSFULLY,
             };
         }
     }
