@@ -73,6 +73,9 @@ namespace NHT_Marine_BE.Utilities
         public const string STORAGE_NOT_FOUND = "STORAGE_NOT_FOUND";
         public const string STORAGE_BEING_USED = "STORAGE_BEING_USED";
         public const string STORAGE_TYPE_NOT_EXIST = "STORAGE_TYPE_NOT_EXIST";
+        public const string PRODUCT_IMPORT_NOT_FOUND = "PRODUCT_IMPORT_NOT_FOUND";
+        public const string PRODUCT_IMPORT_ALREADY_DISTRIBUTED = "PRODUCT_IMPORT_ALREADY_DISTRIBUTED";
+        public const string PRODUCT_QUANTITY_MISMATCH = "PRODUCT_QUANTITY_MISMATCH";
 
         // Transactions related
         public const string DELIVERY_SERVICE_NOT_FOUND = "DELIVERY_SERVICE_NOT_FOUND";

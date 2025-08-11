@@ -15,7 +15,7 @@ namespace NHT_Marine_BE.Data.Dtos.Stock
         public int? TrackedBy { get; set; }
         public SupplierDto? Supplier { get; set; }
         public StaffDto? TrackedByStaff { get; set; }
-        public List<ImportItemDto> Items { get; set; } = [];
+        public List<ImportItemDto>? Items { get; set; } = [];
     }
 
     public class ImportItemDto
