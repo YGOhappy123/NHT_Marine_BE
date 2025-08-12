@@ -1,4 +1,3 @@
-using NHT_Marine_BE.Data.Dtos.Auth;
 using NHT_Marine_BE.Data.Dtos.Order;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Queries;
@@ -14,5 +13,9 @@ namespace NHT_Marine_BE.Interfaces.Services
         Task<ServiceResponse> AddNewOrderStatus(CreateUpdateOrderStatusDto createDto, int authRoleId);
         Task<ServiceResponse> UpdateOrderStatus(CreateUpdateOrderStatusDto updateDto, int targetStatusId, int authRoleId);
         Task<ServiceResponse> RemoveOrderStatus(int targetStatusId, int authRoleId);
+        Task<ServiceResponse<List<StatusTransitionGroupDto>>> GetAllTransitions(BaseQueryObject queryObject);
+        Task<ServiceResponse> AddNewTransition(CreateUpdateStatusTransitionDto createDto, int authRoleId);
+        Task<ServiceResponse> UpdateTransition(CreateUpdateStatusTransitionDto updateDto, int transitionId, int authRoleId);
+        Task<ServiceResponse> RemoveTransition(int transitionId, int authRoleId);
     }
 }

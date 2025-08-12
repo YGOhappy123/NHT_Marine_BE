@@ -32,13 +32,13 @@ namespace NHT_Marine_BE.Controllers
             return StatusCode(result.Status, new SuccessResponseDto { Data = result.Data });
         }
 
-        // [Authorize(Policy = "StaffOnly")]
+        [Authorize(Policy = "StaffOnly")]
         [HttpGet("popular-customers")]
         public async Task<IActionResult> GetPopularCustomerStatistic([FromQuery] string type)
         {
             var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var result = await _statisticService.GetPopularStatistic(type, 1);
+            var result = await _statisticService.GetPopularStatistic(type, int.Parse(authRoleId!));
             if (!result.Success)
             {
                 return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });

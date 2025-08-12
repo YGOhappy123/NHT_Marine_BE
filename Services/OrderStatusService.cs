@@ -2,6 +2,7 @@ using NHT_Marine_BE.Data.Dtos.Order;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Enums;
+using NHT_Marine_BE.Extensions.Mappers;
 using NHT_Marine_BE.Interfaces.Repositories;
 using NHT_Marine_BE.Interfaces.Services;
 using NHT_Marine_BE.Models.Transaction;
@@ -12,11 +13,17 @@ namespace NHT_Marine_BE.Services
     public class OrderStatusService : IOrderStatusService
     {
         private readonly IOrderStatusRepository _orderStatusRepo;
+        private readonly IStatusTransitionRepository _statusTransitionRepo;
         private readonly IRoleRepository _roleRepo;
 
-        public OrderStatusService(IOrderStatusRepository orderStatusRepo, IRoleRepository roleRepo)
+        public OrderStatusService(
+            IOrderStatusRepository orderStatusRepo,
+            IStatusTransitionRepository statusTransitionRepo,
+            IRoleRepository roleRepo
+        )
         {
             _orderStatusRepo = orderStatusRepo;
+            _statusTransitionRepo = statusTransitionRepo;
             _roleRepo = roleRepo;
         }
 
@@ -239,6 +246,135 @@ namespace NHT_Marine_BE.Services
                 Status = ResStatusCode.OK,
                 Success = true,
                 Message = SuccessMessage.DELETE_ORDER_STATUS_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse<List<StatusTransitionGroupDto>>> GetAllTransitions(BaseQueryObject queryObject)
+        {
+            var transitionGroups = await _statusTransitionRepo.GetAllTransitions(queryObject);
+            foreach (var group in transitionGroups)
+            {
+                var fromStatus = await _orderStatusRepo.GetOrderStatusById((int)group.FromStatusId!);
+                if (fromStatus != null)
+                {
+                    group.FromStatus = fromStatus.ToOrderStatusDto();
+                }
+            }
+
+            return new ServiceResponse<List<StatusTransitionGroupDto>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = transitionGroups,
+            };
+        }
+
+        public async Task<ServiceResponse> AddNewTransition(CreateUpdateStatusTransitionDto createDto, int authRoleId)
+        {
+            var hasUpdateOrderStatusPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_ORDER_STATUS.ToString());
+            if (!hasUpdateOrderStatusPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var transition = await _statusTransitionRepo.GetTransitionByFromAndToStatusId(createDto.FromStatusId, createDto.ToStatusId);
+            if (transition != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.STATUS_TRANSITION_EXISTED,
+                };
+            }
+
+            var newTransition = new StatusTransition
+            {
+                FromStatusId = createDto.FromStatusId,
+                ToStatusId = createDto.ToStatusId,
+                TransitionLabel = createDto.TransitionLabel,
+            };
+            await _statusTransitionRepo.AddStatusTransition(newTransition);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.CREATED,
+                Success = true,
+                Message = SuccessMessage.CREATE_STATUS_TRANSITION_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> UpdateTransition(CreateUpdateStatusTransitionDto updateDto, int transitionId, int authRoleId)
+        {
+            var hasUpdateOrderStatusPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_ORDER_STATUS.ToString());
+            if (!hasUpdateOrderStatusPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetTransition = await _statusTransitionRepo.GetTransitionById(transitionId);
+            if (targetTransition == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.STATUS_TRANSITION_NOT_FOUND,
+                };
+            }
+
+            targetTransition.TransitionLabel = updateDto.TransitionLabel;
+            await _statusTransitionRepo.UpdateStatusTransition(targetTransition);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.UPDATE_STATUS_TRANSITION_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> RemoveTransition(int transitionId, int authRoleId)
+        {
+            var hasUpdateOrderStatusPermission = await _roleRepo.VerifyPermission(authRoleId, Permission.UPDATE_ORDER_STATUS.ToString());
+            if (!hasUpdateOrderStatusPermission)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            var targetTransition = await _statusTransitionRepo.GetTransitionById(transitionId);
+            if (targetTransition == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.STATUS_TRANSITION_NOT_FOUND,
+                };
+            }
+
+            await _statusTransitionRepo.DeleteStatusTransition(targetTransition);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.DELETE_STATUS_TRANSITION_SUCCESSFULLY,
             };
         }
     }
