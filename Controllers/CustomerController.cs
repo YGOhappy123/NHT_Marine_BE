@@ -179,5 +179,97 @@ namespace NHT_Marine_BE.Controllers
 
             return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
+
+        [Authorize(Policy = "CustomerOnly")]
+        [HttpGet("address/my-addresses")]
+        public async Task<IActionResult> GetCustomerAddresses([FromQuery] BaseQueryObject queryObject)
+        {
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            var result = await _customerService.GetCustomerAddresses(queryObject, int.Parse(authUserId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(
+                result.Status,
+                new SuccessResponseDto
+                {
+                    Data = result.Data,
+                    Total = result.Total,
+                    Took = result.Took,
+                }
+            );
+        }
+
+        [Authorize(Policy = "CustomerOnly")]
+        [HttpPost("address")]
+        public async Task<IActionResult> AddCustomerAddress([FromBody] AddCustomerAddressDto addCustomerAddressDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            var result = await _customerService.AddCustomerAddress(addCustomerAddressDto, int.Parse(authUserId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "CustomerOnly")]
+        [HttpPatch("address/{addressId:int}")]
+        public async Task<IActionResult> SetCustomerAddressAsDefault([FromRoute] int addressId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            var result = await _customerService.SetCustomerAddressAsDefault(addressId, int.Parse(authUserId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "CustomerOnly")]
+        [HttpDelete("address/{addressId:int}")]
+        public async Task<IActionResult> DeleteCustomerAddress([FromRoute] int addressId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+
+            var result = await _customerService.DeleteCustomerAddress(addressId, int.Parse(authUserId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
     }
 }

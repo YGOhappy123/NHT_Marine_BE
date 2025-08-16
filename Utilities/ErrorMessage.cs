@@ -17,6 +17,9 @@ namespace NHT_Marine_BE.Utilities
         public const string ROLE_EXISTED = "ROLE_EXISTED";
         public const string ROLE_BEING_USED = "ROLE_BEING_USED";
         public const string INVALID_ROLE_SELECTED = "INVALID_ROLE_SELECTED";
+        public const string ADDRESS_EXISTED = "ADDRESS_EXISTED";
+        public const string ADDRESS_NOT_FOUND = "ADDRESS_NOT_FOUND";
+        public const string CANNOT_DELETE_DEFAULT_ADDRESS = "CANNOT_DELETE_DEFAULT_ADDRESS";
 
         // Services related
         public const string UPLOAD_IMAGE_FAILED = "UPLOAD_IMAGE_FAILED";

@@ -118,13 +118,3 @@ VALUES
     ('20', '18'),
     ('20', '20');
 GO
-
-INSERT INTO dbo.CustomerAddresses 
-    (CustomerId, RecipientName, PhoneNumber, City, District, Ward, AddressLine, IsDefault) 
-VALUES
-    ('1', N'Trần Thị Vân Anh', '0827376722', N'Hà Nội', N'Ba Đình', N'Vĩnh Phúc', N'8 Ng. 64 - Vĩnh Phúc', '1'),
-    ('2', N'Phạm Thị Kiều Trang', '0902125305', N'Thanh Hóa', N'Sầm Sơn', N'Trung Sơn', N'151 Nguyễn Hồng Lễ', '1'),
-    ('2', N'Hà Huyền My', '0827775408', N'Long An', N'Đức Hòa', N'Hậu Nghĩa', N'311 QLN2', '0'),
-    ('3', N'Lê Song Nguyên', '0969040220', N'Hồ Chí Minh', N'Thủ Đức', N'Hiệp Phú', N'35 Man Thiện', '1'),
-    ('4', N'Lâm Chí Cường', '0941710934', N'Bình Dương', N'Dĩ An', N'Tân Bình', N'64 Đường Nguyễn Thị Tươi', '1');
-GO

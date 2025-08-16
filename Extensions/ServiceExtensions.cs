@@ -170,6 +170,7 @@ namespace NHT_Marine_BE.Extensions
             services.AddScoped<IDamageReportRepository, DamageReportRepository>();
             services.AddScoped<IStorageRepository, StorageRepository>();
             services.AddScoped<IStatusTransitionRepository, StatusTransitionRepository>();
+            services.AddScoped<ICustomerAddressRepository, CustomerAddressRepository>();
 
             // Services interfaces
             services.AddScoped<IJwtService, JwtService>();
