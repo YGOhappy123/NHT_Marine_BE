@@ -49,12 +49,12 @@ VALUES
 GO
 
 INSERT INTO dbo.CustomerAddresses 
-    (CustomerId, RecipientName, PhoneNumber, City, District, Ward, AddressLine, IsDefault) 
+    (CustomerId, RecipientName, PhoneNumber, City, Ward, AddressLine, IsDefault) 
 VALUES
-    ('1', N'Trần Thị Vân Anh', '0827376722', N'thành phố Hà Nội', N'quận Ba Đình', N'phường Vĩnh Phúc', N'8 Ng. 64 - Vĩnh Phúc', '1'),
-    ('1', N'Trần Thị Vân Anh', '0827376712', N'thành phố Hà Nội', N'quận Đống Đa', N'phường Ngã Tư Sở', N'Xoan Cafe, số 5 ngõ 411 Trường Chinh', '0'),
-    ('2', N'Phạm Thị Kiều Trang', '0902125305', N'tỉnh Thanh Hóa', N'thành phố Sầm Sơn', N'phường gTrung Sơn', N'151 Nguyễn Hồng Lễ', '1'),
-    ('2', N'Hà Huyền My', '0827775408', N'tỉnh Long An', N'huyện Đức Hòa', N'thị trấn Hậu Nghĩa', N'311 QLN2', '1'),
-    ('3', N'Lê Song Nguyên', '0969040220', N'thành phố Hồ Chí Minh', N'thành phố Thủ Đức', N'phường Hiệp Phú', N'35 Man Thiện', '1'),
-    ('4', N'Lâm Chí Cường', '0941710934', N'tỉnh Bình Dương', N'thành phố Dĩ An', N'phường Tân Bình', N'64 Đường Nguyễn Thị Tươi', '1');
+    (1, N'Trần Thị Vân Anh', '0827376722', N'thành phố Hà Nội', N'phường Ngọc Hà', N'8 Ng. 64 - Vĩnh Phúc', 1),
+    (1, N'Trần Thị Vân Anh', '0827376712', N'thành phố Hà Nội', N'phường Đống Đa', N'Xoan Cafe, số 5 ngõ 411 Trường Chinh', 0),
+    (2, N'Phạm Thị Kiều Trang', '0902125305', N'tỉnh Thanh Hóa', N'phường Sầm Sơn', N'151 Nguyễn Hồng Lễ', 1),
+    (3, N'Hà Huyền My', '0827775408', N'tỉnh Long An', N'xã Hậu Nghĩa', N'311 QLN2', 1),
+    (3, N'Lê Song Nguyên', '0969040220', N'thành phố Hồ Chí Minh', N'phường Tăng Nhơn Phú', N'35 Man Thiện', 1),
+    (4, N'Lâm Chí Cường', '0941710934', N'thành phố Hồ Chí Minh', N'phường Tân Đông Hiệp', N'64 Đường Nguyễn Thị Tươi', 1);
 GO

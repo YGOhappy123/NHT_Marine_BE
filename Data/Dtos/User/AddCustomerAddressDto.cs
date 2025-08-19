@@ -14,9 +14,6 @@ namespace NHT_Marine_BE.Data.Dtos.User
         public string City { get; set; } = string.Empty;
 
         [Required]
-        public string District { get; set; } = string.Empty;
-
-        [Required]
         public string Ward { get; set; } = string.Empty;
 
         [Required]

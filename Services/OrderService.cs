@@ -378,6 +378,7 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
+            targetOrder.IsStockReduced = true;
             targetOrder.OrderStatusId = acceptOrderDto.StatusId;
             await _orderRepo.ProcessOrderInventory(acceptOrderDto);
             await _orderRepo.UpdateOrder(targetOrder);

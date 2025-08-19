@@ -34,7 +34,6 @@ VALUES
     (1, 7, N'Từ chối đơn hàng'),
     -- Chuyển từ "Đã tiếp nhận"
     (2, 3, N'Đóng gói đơn hàng'),
-    (2, 7, N'Từ chối sau tiếp nhận'),
     -- Chuyển từ "Đã đóng gói"
     (3, 4, N'Chuyển cho đơn vị vận chuyển'),
     (3, 8, N'Báo thất lạc'),

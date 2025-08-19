@@ -167,10 +167,9 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            // Nếu đang cập nhật IsDefaultState thành true thì cần gỡ cái cũ
+            // Uncheck previous default status
             if (updateDto.IsDefaultState && !targetOrderStatus.IsDefaultState)
             {
-                // Tìm dòng hiện đang có IsDefaultState = true (khác với dòng đang update)
                 var currentDefault = await _orderStatusRepo.GetDefaultOrderStatus();
                 if (currentDefault != null && currentDefault.StatusId != targetOrderStatusId)
                 {

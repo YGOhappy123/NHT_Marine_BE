@@ -383,7 +383,6 @@ namespace NHT_Marine_BE.Services
                 addDto.RecipientName.Trim(),
                 addDto.PhoneNumber.Trim(),
                 addDto.City.Trim(),
-                addDto.District.Trim(),
                 addDto.Ward.Trim(),
                 addDto.AddressLine.Trim(),
                 authUserId
@@ -405,7 +404,6 @@ namespace NHT_Marine_BE.Services
                 RecipientName = addDto.RecipientName.Trim(),
                 PhoneNumber = addDto.PhoneNumber.Trim(),
                 City = addDto.City.Trim(),
-                District = addDto.District.Trim(),
                 Ward = addDto.Ward.Trim(),
                 AddressLine = addDto.AddressLine.Trim(),
                 CustomerId = authUserId,

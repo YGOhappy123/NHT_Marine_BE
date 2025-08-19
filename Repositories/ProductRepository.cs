@@ -48,7 +48,9 @@ namespace NHT_Marine_BE.Repositories
                                 query = query.Where(rp =>
                                     rp.ProductItems.Any(pi =>
                                         pi.Inventories.Sum(inv => (int?)inv.Quantity)
-                                            - pi.Orders.Where(oi => oi.Order!.OrderStatus!.IsDefaultState == true)
+                                            - pi.Orders.Where(oi =>
+                                                    oi.Order!.OrderStatus!.IsUnfulfilled == false && oi.Order.IsStockReduced == false
+                                                )
                                                 .Sum(oi => (int?)oi.Quantity)
                                         > 0
                                     )
@@ -59,7 +61,9 @@ namespace NHT_Marine_BE.Repositories
                                 query = query.Where(rp =>
                                     !rp.ProductItems.Any(pi =>
                                         pi.Inventories.Sum(inv => (int?)inv.Quantity)
-                                            - pi.Orders.Where(oi => oi.Order!.OrderStatus!.IsDefaultState == true)
+                                            - pi.Orders.Where(oi =>
+                                                    oi.Order!.OrderStatus!.IsUnfulfilled == false && oi.Order.IsStockReduced == false
+                                                )
                                                 .Sum(oi => (int?)oi.Quantity)
                                         > 0
                                     )
@@ -275,6 +279,7 @@ namespace NHT_Marine_BE.Repositories
                     Attributes = pi
                         .Attributes.Select(pa => new PartialAttributeDto { Variant = pa.Option!.Variant!.Name, Option = pa.Option.Value })
                         .ToList(),
+                    PackingGuide = pi.PackingGuide,
                     RootProduct = new PartialRootProductDto
                     {
                         RootProductId = pi.RootProduct!.RootProductId,
@@ -303,6 +308,7 @@ namespace NHT_Marine_BE.Repositories
                     Attributes = pi
                         .Attributes.Select(pa => new PartialAttributeDto { Variant = pa.Option!.Variant!.Name, Option = pa.Option.Value })
                         .ToList(),
+                    PackingGuide = pi.PackingGuide,
                     RootProduct = new PartialRootProductDto
                     {
                         RootProductId = pi.RootProduct!.RootProductId,
@@ -323,7 +329,9 @@ namespace NHT_Marine_BE.Repositories
         {
             var totalInventories = await _dbContext.Inventories.Where(i => i.ProductItemId == productItemId).SumAsync(i => i.Quantity);
             var totalPendingItems = await _dbContext
-                .OrderItems.Where(oi => oi.Order!.OrderStatus!.IsDefaultState == true && oi.ProductItemId == productItemId)
+                .OrderItems.Where(oi =>
+                    oi.Order!.OrderStatus!.IsUnfulfilled == false && oi.Order.IsStockReduced == false && oi.ProductItemId == productItemId
+                )
                 .SumAsync(oi => oi.Quantity);
 
             return totalInventories - totalPendingItems;

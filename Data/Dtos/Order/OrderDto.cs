@@ -15,6 +15,7 @@ namespace NHT_Marine_BE.Data.Dtos.Order
         public string? DeliveryAddress { get; set; }
         public string? DeliveryPhone { get; set; }
         public string? Note { get; set; }
+        public bool IsStockReduced { get; set; } = false;
         public DateTime CreatedAt { get; set; }
         public CustomerDto? Customer { get; set; }
         public OrderStatus? OrderStatus { get; set; }

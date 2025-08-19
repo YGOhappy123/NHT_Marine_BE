@@ -12,8 +12,8 @@ using NHT_Marine_BE.Data;
 namespace NHT_Marine_BE.Data.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250805210545_ChangeCouponStatusType")]
-    partial class ChangeCouponStatusType
+    [Migration("20250819174002_CreateDatabaseTables")]
+    partial class CreateDatabaseTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,10 +101,10 @@ namespace NHT_Marine_BE.Data.Migrations
 
             modelBuilder.Entity("NHT_Marine_BE.Models.Product.ProductPromotion", b =>
                 {
-                    b.Property<int?>("PromotionId")
+                    b.Property<int>("PromotionId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductId")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.HasKey("PromotionId", "ProductId");
@@ -546,6 +546,9 @@ namespace NHT_Marine_BE.Data.Migrations
                     b.Property<string>("DeliveryPhone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsStockReduced")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
@@ -874,10 +877,6 @@ namespace NHT_Marine_BE.Data.Migrations
 
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
-
-                    b.Property<string>("District")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");

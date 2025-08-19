@@ -11,7 +11,6 @@ namespace NHT_Marine_BE.Interfaces.Repositories
             string recipientName,
             string phoneNumber,
             string city,
-            string district,
             string ward,
             string addressLine,
             int customerId

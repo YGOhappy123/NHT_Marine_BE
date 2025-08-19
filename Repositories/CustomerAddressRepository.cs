@@ -88,7 +88,6 @@ namespace NHT_Marine_BE.Repositories
             string recipientName,
             string phoneNumber,
             string city,
-            string district,
             string ward,
             string addressLine,
             int customerId
@@ -99,7 +98,6 @@ namespace NHT_Marine_BE.Repositories
                     ca.RecipientName == recipientName
                     && ca.PhoneNumber == phoneNumber
                     && ca.City == city
-                    && ca.District == district
                     && ca.Ward == ward
                     && ca.AddressLine == addressLine
                     && ca.CustomerId == customerId

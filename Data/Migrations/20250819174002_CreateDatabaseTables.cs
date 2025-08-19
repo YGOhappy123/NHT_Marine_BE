@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NHT_Marine_BE.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class FinalDatabase : Migration
+    public partial class CreateDatabaseTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -279,7 +279,6 @@ namespace NHT_Marine_BE.Data.Migrations
                     RecipientName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     City = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    District = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Ward = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AddressLine = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsDefault = table.Column<bool>(type: "bit", nullable: false)
@@ -298,7 +297,7 @@ namespace NHT_Marine_BE.Data.Migrations
                 name: "CustomerCarts",
                 columns: table => new
                 {
-                    AddressId = table.Column<int>(type: "int", nullable: false)
+                    CartId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CustomerId = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -306,7 +305,7 @@ namespace NHT_Marine_BE.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomerCarts", x => x.AddressId);
+                    table.PrimaryKey("PK_CustomerCarts", x => x.CartId);
                     table.ForeignKey(
                         name: "FK_CustomerCarts_Customers_CustomerId",
                         column: x => x.CustomerId,
@@ -347,7 +346,7 @@ namespace NHT_Marine_BE.Data.Migrations
                     CouponId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MaxUsage = table.Column<int>(type: "int", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -521,6 +520,7 @@ namespace NHT_Marine_BE.Data.Migrations
                     DeliveryAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeliveryPhone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsStockReduced = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -680,7 +680,7 @@ namespace NHT_Marine_BE.Data.Migrations
                         name: "FK_CartItems_CustomerCarts_CartId",
                         column: x => x.CartId,
                         principalTable: "CustomerCarts",
-                        principalColumn: "AddressId",
+                        principalColumn: "CartId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CartItems_ProductItems_ProductItemId",

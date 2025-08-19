@@ -9,6 +9,7 @@ namespace NHT_Marine_BE.Data.Dtos.Product
         public PartialRootProductDto? RootProduct { get; set; }
         public int Stock { get; set; }
         public decimal DiscountRate { get; set; }
+        public string PackingGuide { get; set; } = string.Empty;
     }
 
     public class PartialAttributeDto

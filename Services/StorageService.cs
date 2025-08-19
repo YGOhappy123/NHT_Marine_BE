@@ -278,7 +278,6 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            // Kiểm tra TypeId tồn tại
             var type = await _storageTypeRepo.GetStorageTypeById(createDto.TypeId);
             if (type == null)
             {
@@ -337,7 +336,6 @@ namespace NHT_Marine_BE.Services
                 };
             }
 
-            // Kiểm tra TypeId tồn tại
             var type = await _storageTypeRepo.GetStorageTypeById(updateDto.TypeId);
             if (type == null)
             {

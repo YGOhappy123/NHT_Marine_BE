@@ -18,6 +18,7 @@ namespace NHT_Marine_BE.Models.Transaction
         public string? DeliveryAddress { get; set; }
         public string? DeliveryPhone { get; set; }
         public string? Note { get; set; }
+        public bool IsStockReduced { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public Customer? Customer { get; set; }
         public OrderStatus? OrderStatus { get; set; }

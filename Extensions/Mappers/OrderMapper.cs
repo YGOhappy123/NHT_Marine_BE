@@ -23,6 +23,7 @@ namespace NHT_Marine_BE.Extensions.Mappers
                 Customer = order.Customer?.ToCustomerDto(),
                 OrderStatus = order.OrderStatus,
                 Coupon = order.Coupon,
+                IsStockReduced = order.IsStockReduced,
                 Items = order
                     .Items.Select(item => new OrderItemDataDto
                     {
