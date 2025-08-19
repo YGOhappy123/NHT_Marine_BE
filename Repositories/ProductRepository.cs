@@ -334,7 +334,7 @@ namespace NHT_Marine_BE.Repositories
                 )
                 .SumAsync(oi => oi.Quantity);
 
-            return totalInventories - totalPendingItems;
+            return Math.Max(totalInventories - totalPendingItems, 0);
         }
 
         public async Task UpdateProductItem(ProductItem productItem)
