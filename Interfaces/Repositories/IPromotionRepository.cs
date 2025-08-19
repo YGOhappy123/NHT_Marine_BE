@@ -7,6 +7,7 @@ namespace NHT_Marine_BE.Interfaces.Repositories
     {
         Task<(List<Promotion>, int)> GetAllPromotions(BaseQueryObject queryObject);
         Task<Promotion?> GetPromotionByName(string promotionName);
+        Task<Promotion?> GetPromotionById(int promotionId);
         Task AddPromotion(Promotion promotion);
         Task UpdatePromotion(Promotion promotion);
     }

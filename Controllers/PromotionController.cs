@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NHT_Marine_BE.Data.Dtos.Auth;
 using NHT_Marine_BE.Data.Dtos.Response;
+using NHT_Marine_BE.Data.Dtos.Transaction;
 using NHT_Marine_BE.Data.Queries;
 using NHT_Marine_BE.Extensions.Mappers;
 using NHT_Marine_BE.Interfaces.Services;
@@ -68,6 +69,47 @@ namespace NHT_Marine_BE.Controllers
         }
 
         [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("{promotionId:int}")]
+        public async Task<IActionResult> UpdatePromotion(
+            [FromRoute] int promotionId,
+            [FromBody] CreateUpdatePromotionDto updatePromotionDto
+        )
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _promotionService.UpdatePromotion(updatePromotionDto, promotionId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost("disable-promotion/{promotionId:int}")]
+        public async Task<IActionResult> DisablePromotion([FromRoute] int promotionId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _promotionService.DisablePromotion(promotionId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
         [HttpGet("coupons")]
         public async Task<IActionResult> GetAllCoupons([FromQuery] BaseQueryObject queryObject)
         {
@@ -86,6 +128,68 @@ namespace NHT_Marine_BE.Controllers
                     Took = result.Took,
                 }
             );
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost("coupons")]
+        public async Task<IActionResult> AddNewCoupon([FromBody] CreateCouponDto createCouponDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authUserId = HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _promotionService.AddNewCoupon(createCouponDto, int.Parse(authUserId!), int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPatch("coupons/{couponId:int}")]
+        public async Task<IActionResult> UpdateCoupon([FromRoute] int couponId, [FromBody] UpdateCouponDto updateCouponDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return StatusCode(
+                    ResStatusCode.UNPROCESSABLE_ENTITY,
+                    new ErrorResponseDto { Message = ErrorMessage.DATA_VALIDATION_FAILED }
+                );
+            }
+
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _promotionService.UpdateCoupon(updateCouponDto, couponId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
+        }
+
+        [Authorize(Policy = "StaffOnly")]
+        [HttpPost("coupons/disable-coupon/{couponId:int}")]
+        public async Task<IActionResult> DisableCoupon([FromRoute] int couponId)
+        {
+            var authRoleId = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            var result = await _promotionService.DisableCoupon(couponId, int.Parse(authRoleId!));
+            if (!result.Success)
+            {
+                return StatusCode(result.Status, new ErrorResponseDto { Message = result.Message });
+            }
+
+            return StatusCode(result.Status, new SuccessResponseDto { Message = result.Message });
         }
     }
 }

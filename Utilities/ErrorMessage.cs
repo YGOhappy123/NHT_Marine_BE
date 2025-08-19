@@ -50,6 +50,7 @@ namespace NHT_Marine_BE.Utilities
         public const string CANNOT_UPDATE_TO_THIS_STATUS = "CANNOT_UPDATE_TO_THIS_STATUS";
 
         // Promotion and coupon related
+        public const string COUPON_EXISTED = "COUPON_EXISTED";
         public const string COUPON_NOT_FOUND = "COUPON_NOT_FOUND";
         public const string COUPON_NO_LONGER_AVAILABLE = "COUPON_NO_LONGER_AVAILABLE";
         public const string COUPON_REACH_MAX_USAGE = "COUPON_REACH_MAX_USAGE";

@@ -79,6 +79,19 @@ namespace NHT_Marine_BE.Repositories
             return (coupons, total);
         }
 
+        public async Task<Coupon?> GetCouponById(int couponId)
+        {
+            return await _dbContext
+                .Coupons.Include(c => c.CreatedByStaff)
+                .Include(c => c.CreatedByStaff)
+                .SingleOrDefaultAsync(c => c.CouponId == couponId);
+        }
+
+        public async Task<Coupon?> GetCouponByName(string couponName)
+        {
+            return await _dbContext.Coupons.Where(c => c.Code == couponName).FirstOrDefaultAsync();
+        }
+
         public async Task AddCoupon(Coupon coupon)
         {
             _dbContext.Coupons.Add(coupon);
