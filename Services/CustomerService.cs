@@ -1,4 +1,3 @@
-using NHT_Marine_BE.Data.Dtos.Auth;
 using NHT_Marine_BE.Data.Dtos.Order;
 using NHT_Marine_BE.Data.Dtos.Response;
 using NHT_Marine_BE.Data.Dtos.User;
@@ -14,6 +13,7 @@ namespace NHT_Marine_BE.Services
     public class CustomerService : ICustomerService
     {
         private readonly ICustomerRepository _customerRepo;
+        private readonly ICustomerAddressRepository _customerAddressRepo;
         private readonly ICartRepository _cartRepo;
         private readonly IProductRepository _productRepo;
         private readonly IRoleRepository _roleRepo;
@@ -21,6 +21,7 @@ namespace NHT_Marine_BE.Services
 
         public CustomerService(
             ICustomerRepository customerRepo,
+            ICustomerAddressRepository customerAddressRepo,
             ICartRepository cartRepo,
             IProductRepository productRepo,
             IRoleRepository roleRepo,
@@ -28,6 +29,7 @@ namespace NHT_Marine_BE.Services
         )
         {
             _customerRepo = customerRepo;
+            _customerAddressRepo = customerAddressRepo;
             _cartRepo = cartRepo;
             _productRepo = productRepo;
             _roleRepo = roleRepo;
@@ -358,6 +360,148 @@ namespace NHT_Marine_BE.Services
                 Status = ResStatusCode.OK,
                 Success = true,
                 Message = SuccessMessage.DEACTIVATE_CUSTOMER_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse<List<CustomerAddress>>> GetCustomerAddresses(BaseQueryObject queryObject, int customerId)
+        {
+            var (addresses, total) = await _customerAddressRepo.GetCustomerAddresses(queryObject, customerId);
+
+            return new ServiceResponse<List<CustomerAddress>>
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Data = addresses,
+                Total = total,
+                Took = addresses.Count,
+            };
+        }
+
+        public async Task<ServiceResponse> AddCustomerAddress(AddCustomerAddressDto addDto, int authUserId)
+        {
+            var exactMatchAddress = await _customerAddressRepo.GetCustomerAddressExactMatch(
+                addDto.RecipientName.Trim(),
+                addDto.PhoneNumber.Trim(),
+                addDto.City.Trim(),
+                addDto.District.Trim(),
+                addDto.Ward.Trim(),
+                addDto.AddressLine.Trim(),
+                authUserId
+            );
+            if (exactMatchAddress != null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.CONFLICT,
+                    Success = false,
+                    Message = ErrorMessage.ADDRESS_EXISTED,
+                };
+            }
+
+            var defaultAddress = await _customerAddressRepo.GetCustomerDefaultAddress(authUserId);
+
+            var newAddress = new CustomerAddress
+            {
+                RecipientName = addDto.RecipientName.Trim(),
+                PhoneNumber = addDto.PhoneNumber.Trim(),
+                City = addDto.City.Trim(),
+                District = addDto.District.Trim(),
+                Ward = addDto.Ward.Trim(),
+                AddressLine = addDto.AddressLine.Trim(),
+                CustomerId = authUserId,
+                IsDefault = defaultAddress == null,
+            };
+            await _customerAddressRepo.AddCustomerAddress(newAddress);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.CREATED,
+                Success = true,
+                Message = SuccessMessage.ADD_ADDRESS_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> SetCustomerAddressAsDefault(int addressId, int authUserId)
+        {
+            var targetAddress = await _customerAddressRepo.GetCustomerAddressById(addressId);
+            if (targetAddress == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.ADDRESS_NOT_FOUND,
+                };
+            }
+            if (targetAddress.CustomerId != authUserId)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+
+            if (targetAddress.IsDefault == false)
+            {
+                var defaultAddress = await _customerAddressRepo.GetCustomerDefaultAddress(authUserId);
+                if (defaultAddress != null)
+                {
+                    defaultAddress.IsDefault = false;
+                    await _customerAddressRepo.UpdateCustomerAddress(defaultAddress);
+                }
+
+                targetAddress.IsDefault = true;
+                await _customerAddressRepo.UpdateCustomerAddress(targetAddress);
+            }
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.UPDATE_ADDRESS_SUCCESSFULLY,
+            };
+        }
+
+        public async Task<ServiceResponse> DeleteCustomerAddress(int addressId, int authUserId)
+        {
+            var targetAddress = await _customerAddressRepo.GetCustomerAddressById(addressId);
+            if (targetAddress == null)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.NOT_FOUND,
+                    Success = false,
+                    Message = ErrorMessage.ADDRESS_NOT_FOUND,
+                };
+            }
+            if (targetAddress.CustomerId != authUserId)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.FORBIDDEN,
+                    Success = false,
+                    Message = ErrorMessage.NO_PERMISSION,
+                };
+            }
+            if (targetAddress.IsDefault == true)
+            {
+                return new ServiceResponse
+                {
+                    Status = ResStatusCode.BAD_REQUEST,
+                    Success = false,
+                    Message = ErrorMessage.CANNOT_DELETE_DEFAULT_ADDRESS,
+                };
+            }
+
+            await _customerAddressRepo.DeleteCustomerAddress(targetAddress);
+
+            return new ServiceResponse
+            {
+                Status = ResStatusCode.OK,
+                Success = true,
+                Message = SuccessMessage.DELETE_ADDRESS_SUCCESSFULLY,
             };
         }
     }

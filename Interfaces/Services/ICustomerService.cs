@@ -17,5 +17,9 @@ namespace NHT_Marine_BE.Interfaces.Services
         Task<ServiceResponse> ResetCustomerCart(int authUserId);
         Task<ServiceResponse<List<Customer>>> GetAllCustomers(BaseQueryObject queryObject);
         Task<ServiceResponse> DeactivateCustomerAccount(int targetCustomerId, int authRoleId);
+        Task<ServiceResponse<List<CustomerAddress>>> GetCustomerAddresses(BaseQueryObject queryObject, int customerId);
+        Task<ServiceResponse> AddCustomerAddress(AddCustomerAddressDto addDto, int authUserId);
+        Task<ServiceResponse> SetCustomerAddressAsDefault(int addressId, int authUserId);
+        Task<ServiceResponse> DeleteCustomerAddress(int addressId, int authUserId);
     }
 }
